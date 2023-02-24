@@ -13,7 +13,7 @@ public struct FileManagerHelpers {
 	
 	public func fileSize(url: URL) -> Int? {
 		
-		if #available(macOS 13.0, *) {
+		if #available(macOS 13.0, iOS 16.0, *) {
 			if let attributes = try? FileManager.default.attributesOfItem(atPath: url.path(percentEncoded: false)) {
 				let size = attributes[FileAttributeKey.size]
 				return size as? Int
