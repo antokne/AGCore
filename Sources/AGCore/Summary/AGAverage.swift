@@ -1,5 +1,5 @@
 //
-//  AGAverageType.swift
+//  AGAverage.swift
 //  FitViewer
 //
 //  Created by Ant Gardiner on 17/07/18.
@@ -58,7 +58,7 @@ public struct AGAverageTypeStruct {
 
 
 
-public struct WFAverage {
+public struct AGAverage {
 	
 	static let NotSet = Double.greatestFiniteMagnitude
 
@@ -75,14 +75,14 @@ public struct WFAverage {
 	
 	var type: AGDataType
 	
-	init(type: AGDataType) {
+	public init(type: AGDataType) {
 		self.type = type
-		left = WFAverage.getNotSetPpoint()
-		right = WFAverage.getNotSetPpoint()
-		top = WFAverage.getNotSetPpoint()
-		bottom = WFAverage.getNotSetPpoint()
-		last = WFAverage.getNotSetPpoint()
-		first = WFAverage.getNotSetPpoint()
+		left = AGAverage.getNotSetPpoint()
+		right = AGAverage.getNotSetPpoint()
+		top = AGAverage.getNotSetPpoint()
+		bottom = AGAverage.getNotSetPpoint()
+		last = AGAverage.getNotSetPpoint()
+		first = AGAverage.getNotSetPpoint()
 	}
 	
 	private static func getNotSetPpoint() -> CGPoint {
@@ -91,27 +91,27 @@ public struct WFAverage {
 	
 	mutating func add(x: Double, y: Double) {
 		
-		if self.left.x == WFAverage.NotSet || x < self.left.x
+		if self.left.x == AGAverage.NotSet || x < self.left.x
 		{
 			self.left = CGPoint(x: x, y: y)
 		}
 		
-		if self.right.x == WFAverage.NotSet || x > self.right.x
+		if self.right.x == AGAverage.NotSet || x > self.right.x
 		{
 			self.right = CGPoint(x: x, y: y)
 		}
 		
-		if self.bottom.y == WFAverage.NotSet || y < self.bottom.y
+		if self.bottom.y == AGAverage.NotSet || y < self.bottom.y
 		{
 			self.bottom = CGPoint(x: x, y: y)
 		}
 		
-		if self.top.y == WFAverage.NotSet || y > self.top.y
+		if self.top.y == AGAverage.NotSet || y > self.top.y
 		{
 			self.top = CGPoint(x: x, y: y)
 		}
 		
-		if self.first.y == WFAverage.NotSet
+		if self.first.y == AGAverage.NotSet
 		{
 			self.first = CGPoint(x: x, y: y)
 		}
