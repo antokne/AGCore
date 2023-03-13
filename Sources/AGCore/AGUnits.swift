@@ -35,3 +35,29 @@ public class AGUnitHeartrate: Dimension {
 		return bpm as! Self
 	}
 }
+
+
+
+public class AGUnitPercent: Dimension {
+	
+	private struct Symbol {
+		static let percent      = "%"
+	}
+	
+	/// Percentage Unit
+	public class var percent: AGUnitPercent {
+		return AGUnitPercent(symbol: Symbol.percent)
+	}
+}
+
+public class AGUnitBoolean : Dimension {
+	
+	private struct Symbol {
+		static let bool      = "Bool"
+	}
+	
+	public class var bool: AGUnitBoolean {
+		return AGUnitBoolean(symbol: Symbol.bool)
+	}
+
+}
