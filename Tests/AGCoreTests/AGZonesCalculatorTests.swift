@@ -20,11 +20,11 @@ final class AGZonesCalculatorTests: XCTestCase {
 		
 		let zonesCalculator = AGZonesCalculator()
 		
-		zonesCalculator.addZone(type: .heartrate, hiLimit: 108)
-		zonesCalculator.addZone(type: .heartrate, hiLimit: 138)
-		zonesCalculator.addZone(type: .heartrate, hiLimit: 254)
-		zonesCalculator.addZone(type: .heartrate, hiLimit: 126)
-		zonesCalculator.addZone(type: .heartrate, hiLimit: 158)
+		zonesCalculator.addZone(index: 0, type: .heartrate, hiLimit: 108)
+		zonesCalculator.addZone(index: 1, type: .heartrate, hiLimit: 138)
+		zonesCalculator.addZone(index: 2, type: .heartrate, hiLimit: 254)
+		zonesCalculator.addZone(index: 3, type: .heartrate, hiLimit: 126)
+		zonesCalculator.addZone(index: 4, type: .heartrate, hiLimit: 158)
 		
 		guard let allHRZones = zonesCalculator.allZoneTypes[.heartrate] else {
 			XCTFail("No HR ZONES")
@@ -53,12 +53,12 @@ final class AGZonesCalculatorTests: XCTestCase {
 		}
 		
 		
-		zonesCalculator.addZone(type: .power, hiLimit: 65534)
-		zonesCalculator.addZone(type: .power, hiLimit: 281)
-		zonesCalculator.addZone(type: .power, hiLimit: 207)
-		zonesCalculator.addZone(type: .power, hiLimit: 447)
-		zonesCalculator.addZone(type: .power, hiLimit: 336)
-		zonesCalculator.addZone(type: .power, hiLimit: 392)
+		zonesCalculator.addZone(index: 0, type: .power, hiLimit: 65534)
+		zonesCalculator.addZone(index: 1, type: .power, hiLimit: 281)
+		zonesCalculator.addZone(index: 2, type: .power, hiLimit: 207)
+		zonesCalculator.addZone(index: 3, type: .power, hiLimit: 447)
+		zonesCalculator.addZone(index: 4, type: .power, hiLimit: 336)
+		zonesCalculator.addZone(index: 5, type: .power, hiLimit: 392)
 		
 		guard let allPowerZones = zonesCalculator.allZoneTypes[.power] else {
 			XCTFail("No POWER ZONES")
