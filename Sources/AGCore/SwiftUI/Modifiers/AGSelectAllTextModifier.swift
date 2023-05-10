@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 
+#if iOS
 public struct SelectTextOnEditingModifier: ViewModifier {
 	var currentValue: String
 	public func body(content: Content) -> some View {
@@ -29,3 +30,5 @@ extension View {
 		modifier(SelectTextOnEditingModifier(currentValue: currentValue))
 	}
 }
+
+#endif

@@ -11,6 +11,7 @@ import SwiftUI
 // e.g. .iOS { $0.italic() }
 //
 
+@available(macOS 10.15, *)
 extension View {
 	public func iOS<Content: View>(_ modifier: (Self) -> Content) -> some View {
 #if os(iOS)
@@ -21,6 +22,7 @@ extension View {
 	}
 }
 
+@available(macOS 10.15, *)
 extension View {
 	public func macOS<Content: View>(_ modifier: (Self) -> Content) -> some View {
 #if os(macOS)
@@ -31,6 +33,7 @@ extension View {
 	}
 }
 
+@available(macOS 10.15, *)
 extension View {
 	public func tvOS<Content: View>(_ modifier: (Self) -> Content) -> some View {
 #if os(tvOS)
@@ -41,6 +44,7 @@ extension View {
 	}
 }
 
+@available(macOS 10.15, *)
 extension View {
 	public func watchOS<Content: View>(_ modifier: (Self) -> Content) -> some View {
 #if os(watchOS)

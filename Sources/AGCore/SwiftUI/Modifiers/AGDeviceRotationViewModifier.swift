@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+#if iOS
 public struct AGDeviceRotationViewModifier: ViewModifier {
 	let action: (UIDeviceOrientation) -> Void
 	
@@ -24,3 +25,4 @@ extension View {
 		self.modifier(AGDeviceRotationViewModifier(action: action))
 	}
 }
+#endif

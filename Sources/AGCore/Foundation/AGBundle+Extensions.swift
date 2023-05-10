@@ -12,4 +12,8 @@ extension Bundle {
 		object(forInfoDictionaryKey: "CFBundleDisplayName") as? String ??
 		object(forInfoDictionaryKey: "CFBundleName") as? String
 	}
+	
+	public static var mainBundleId: String? {
+		Bundle.main.bundleIdentifier
+	}
 }
