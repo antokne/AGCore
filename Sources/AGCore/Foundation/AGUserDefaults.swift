@@ -62,8 +62,9 @@ public struct AGUserDefaultBoolValue {
 public struct AGUserDefaultDoubleValue {
 	var keyName: String
 	
-	public init(keyName: String) {
+	public init(keyName: String, defaultValue: Double) {
 		self.keyName = keyName
+		UserDefaults.standard.register(defaults: [keyName: defaultValue])
 	}
 	
 	public var doubleValue: Double {
