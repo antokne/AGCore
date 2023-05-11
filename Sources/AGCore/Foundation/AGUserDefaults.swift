@@ -57,3 +57,22 @@ public struct AGUserDefaultBoolValue {
 		}
 	}
 }
+
+
+public struct AGUserDefaultDoubleValue {
+	var keyName: String
+	
+	public init(keyName: String) {
+		self.keyName = keyName
+	}
+	
+	public var doubleValue: Double {
+		get {
+			let value = UserDefaults.standard.double(forKey: keyName)
+			return value
+		}
+		set {
+			UserDefaults.standard.set(newValue, forKey: keyName)
+		}
+	}
+}
