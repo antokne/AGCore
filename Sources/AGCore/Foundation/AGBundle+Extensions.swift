@@ -16,4 +16,8 @@ extension Bundle {
 	public static var mainBundleId: String? {
 		Bundle.main.bundleIdentifier
 	}
+	
+	public var buildNumber: String {
+		return infoDictionary?["CFBundleVersion"] as! String
+	}
 }
