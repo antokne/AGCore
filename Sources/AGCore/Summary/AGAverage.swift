@@ -78,14 +78,14 @@ public struct AGAverage {
 
 	private var left: CGPoint
 	private var right: CGPoint
-	private var top: CGPoint
-	private var bottom: CGPoint
+	private var max: CGPoint
+	private var min: CGPoint
 	
 	private var last: CGPoint
 	private var first: CGPoint
 	
-	private var sum: Double = 0
-	private var count: Int = 0
+	private(set) public var sum: Double = 0
+	private(set) public var count: Int = 0
 	
 	private(set) public var type: AGDataType
 	
@@ -93,14 +93,18 @@ public struct AGAverage {
 		self.type = type
 		left = AGAverage.getNotSetPpoint()
 		right = AGAverage.getNotSetPpoint()
-		top = AGAverage.getNotSetPpoint()
-		bottom = AGAverage.getNotSetPpoint()
+		max = AGAverage.getNotSetPpoint()
+		min = AGAverage.getNotSetPpoint()
 		last = AGAverage.getNotSetPpoint()
 		first = AGAverage.getNotSetPpoint()
 	}
 	
 	private static func getNotSetPpoint() -> CGPoint {
 		CGPoint(x: NotSet, y: NotSet)
+	}
+	
+	mutating func add(point: CGPoint) {
+		add(x: point.x, y: point.y)
 	}
 	
 	/// Add x and y actual values
@@ -119,14 +123,14 @@ public struct AGAverage {
 			self.right = CGPoint(x: x, y: y)
 		}
 		
-		if self.bottom.y == AGAverage.NotSet || y < self.bottom.y
+		if self.min.y == AGAverage.NotSet || y < self.min.y
 		{
-			self.bottom = CGPoint(x: x, y: y)
+			self.min = CGPoint(x: x, y: y)
 		}
 		
-		if self.top.y == AGAverage.NotSet || y > self.top.y
+		if self.max.y == AGAverage.NotSet || y > self.max.y
 		{
-			self.top = CGPoint(x: x, y: y)
+			self.max = CGPoint(x: x, y: y)
 		}
 		
 		if self.first.y == AGAverage.NotSet
@@ -186,11 +190,11 @@ public struct AGAverage {
 		case .average:
 			return getAverage()
 		case .max:
-			return top.y
+			return max.y
 		case .min:
-			return bottom.y
+			return min.y
 		case .range:
-			return top.y - bottom.y
+			return max.y - min.y
 		case .accumulation:
 			return right.y - left.y
 		case .accumulationOverTime:
@@ -203,7 +207,9 @@ public struct AGAverage {
 	}
 	
 	public func stringValue() -> String {
-		String(format: "AVG:%f MAX:%f MIN:%f RANGE:%f ACCUM:%f ACCUM/TIME:%f FIRST:%f LAST:%f",
+		String(format: "SUM:%f Count:%d AVG:%f MAX:%f MIN:%f RANGE:%f ACCUM:%f ACCUM/TIME:%f FIRST:%f LAST:%f",
+			   sum,
+			   count,
 			   getValue(for: .average) ?? -1,
 			   getValue(for: .max) ?? -1,
 			   getValue(for: .min) ?? -1,

@@ -20,20 +20,28 @@ final class AGAverageTests: XCTestCase {
 
 		var average = AGAverage(type: .power)
 		
-		for x in 0...10 {
-			let y = x
-			average.add(x: Double(x), y: Double(y))
-		}
+		let left = CGPoint(x: 10, y: 2)
+		let max = CGPoint(x: 12, y: 6)
+		let min = CGPoint(x: 13, y: 1)
+		let right = CGPoint(x: 14, y: 3)
+		let count = 4
+		let accum_over_time = (right.y - left.y)/(right.x - left.x)
 		
+		average.add(point: left)
+		average.add(point: max)
+		average.add(point: min)
+		average.add(point: right)
+
 		print(average.stringValue())
 		
-		XCTAssertEqual(average.getValue(for: .first), 0.0)
-		XCTAssertEqual(average.getValue(for: .last), 10.0)
-		XCTAssertEqual(average.getValue(for: .min), 0.0)
-		XCTAssertEqual(average.getValue(for: .max), 10.0)
-		XCTAssertEqual(average.getValue(for: .range), 10.0)
-		XCTAssertEqual(average.getValue(for: .accumulation), 10.0)
-		XCTAssertEqual(average.getValue(for: .accumulationOverTime), 1000.0)
+		XCTAssertEqual(average.count, count)
+		XCTAssertEqual(average.getValue(for: .first), left.y)
+		XCTAssertEqual(average.getValue(for: .last), right.y)
+		XCTAssertEqual(average.getValue(for: .min), min.y)
+		XCTAssertEqual(average.getValue(for: .max), max.y)
+		XCTAssertEqual(average.getValue(for: .range), max.y - min.y)
+		XCTAssertEqual(average.getValue(for: .accumulation), right.y - left.y)
+		XCTAssertEqual(average.getValue(for: .accumulationOverTime), accum_over_time)
 
 	}
 	

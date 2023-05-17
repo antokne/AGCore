@@ -20,12 +20,12 @@ public extension NSView {
 		
 		// MARK: - Constraints to superview
 		
-		@discardableResult public func top(_ offset: CGFloat = 0) -> ConstraintBuilder {
+		@discardableResult public func max(_ offset: CGFloat = 0) -> ConstraintBuilder {
 			srcView.topAnchor.constraint(equalTo: dstView.topAnchor, constant: offset).isActive = true
 			return self
 		}
 		
-		@discardableResult public func bottom(_ offset: CGFloat = 0) -> ConstraintBuilder {
+		@discardableResult public func min(_ offset: CGFloat = 0) -> ConstraintBuilder {
 			srcView.bottomAnchor.constraint(equalTo: dstView.bottomAnchor, constant: offset).isActive = true
 			return self
 		}
