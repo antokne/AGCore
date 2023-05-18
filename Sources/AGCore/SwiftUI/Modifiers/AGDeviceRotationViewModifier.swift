@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-#if iOS
+#if os(iOS)
 public struct AGDeviceRotationViewModifier: ViewModifier {
 	let action: (UIDeviceOrientation) -> Void
 	

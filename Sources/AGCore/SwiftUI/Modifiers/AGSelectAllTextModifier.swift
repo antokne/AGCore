@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-#if iOS
+#if os(iOS)
 public struct SelectTextOnEditingModifier: ViewModifier {
 	var currentValue: String
 	public func body(content: Content) -> some View {
