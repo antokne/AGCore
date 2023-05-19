@@ -42,6 +42,7 @@ public class AGAverageCurve: NSObject {
 	let totalActivityTimeS: Int
 	
 	private var workingPoints: [AGAverageCurvePoint] = []
+	private var bestPoints: [AGAverageCurvePoint] = []
 
 	public init(totalActivityTimeS: Int) {
 		self.totalActivityTimeS = totalActivityTimeS
@@ -50,31 +51,37 @@ public class AGAverageCurve: NSObject {
 	private func createPoints() {
 				
 		// get whole minutes and at least 1.
-		let totalTimeM = Int(max(ceil(Double(self.totalActivityTimeS) / 60.0), 1))
+		//let totalTimeM = Int(max(ceil(Double(self.totalActivityTimeS) / 60.0), 1))
 		
 		var step = 1
-		while step < totalTimeM {
+		while step <= self.totalActivityTimeS {
 			
 			let point = AGAverageCurvePoint(seconds: step)
 			workingPoints.append(point)
 
 			switch step {
 			case _ where step >= 3600: 	// over an hour add a point for each hour
-				step += 900
+				step += 3600
 			case _ where step >= 600:	// Over 10m add a point for each 10m interval
 				step += 600
 			case _ where step >= 60:	// Over 1 min add a point for every 1m
 				step += 60
-			case _ where step >= 20:	// Over 20s add a point every 5s
+			case _ where step >= 30:	// over 30s add point for every 30s.
+				step += 30
+			case _ where step >= 5:		// Over 5s add a point every 5s
 				step += 5
 			default:
 				step += 1
 			}
 		}
+		
+		// A copy because structs are value types!
+		bestPoints = workingPoints
 	}
 	
 	public func reset() {
 		workingPoints = []
+		bestPoints = []
 	}
 	
 	/// Added a value for this time in seconds from start of activity
@@ -87,27 +94,30 @@ public class AGAverageCurve: NSObject {
 			createPoints()
 		}
 		
-		for var currentPoint in workingPoints {
+		for index in 0..<workingPoints.count {
 			
 			// if the added count is less than current seconds just add it
-			if currentPoint.added < currentPoint.seconds {
-				currentPoint.add(value: value)
+			if workingPoints[index].added < workingPoints[index].seconds {
+				workingPoints[index].add(value: value)
 			}
 			else {
 				// remove oldest value
-				currentPoint.removeOldest()
+				workingPoints[index].removeOldest()
 				
 				// move start time ahead one second
-				currentPoint.startTimeS += 1
+				workingPoints[index].startTimeS += 1
 				
 				// add new value
-				currentPoint.add(value: value)
-				
+				workingPoints[index].add(value: value)
+			}
+			
+			if bestPoints[index].sum < workingPoints[index].sum {
+				bestPoints[index] = workingPoints[index]
 			}
 		}
 	}
 	
 	public var points: [AGAverageCurvePoint] {
-		workingPoints
+		bestPoints
 	}
 }
