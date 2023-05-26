@@ -10,11 +10,16 @@ import Foundation
 
 public enum AGDataType: Int {
 	case speed
+	case speedAccuracy
+	case latitude
+	case longitude
+	case horizontalAccuracy
 	case power
 	case cadence
 	case hr
 	case distance
 	case altitude
+	case verticalAccuracy
 	case ascent
 	case descent
 	case grade
@@ -28,6 +33,17 @@ public enum AGDataType: Int {
 	case pedalSmoothnessLeft
 	case pedalSmoothnessRight
 	case pedalSmoothnessCombined
+	case timestamp
+}
+
+public struct AGDataTypeValue: Hashable {
+	private(set) public var type: AGDataType
+	private(set) public var value: Double
+	
+	public init(type: AGDataType, value: Double) {
+		self.type = type
+		self.value = value
+	}
 }
 
 public enum AGAverageType: Int32 {
