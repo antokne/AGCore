@@ -6,8 +6,8 @@ import PackageDescription
 let package = Package(
     name: "AGCore",
 	platforms: [
-		.iOS(.v13),
-		.tvOS(.v13),
+		.iOS(.v16),
+		.tvOS(.v16),
 		.macOS(.v10_13),
 	],
     products: [
