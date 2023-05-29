@@ -95,6 +95,10 @@ public struct AGAccumlatorMultiData {
 	
 	private(set) public var currentData: AGAccumulatorData = AGAccumulatorData()
 
+	public init() {
+		
+	}
+	
 	mutating func add(type: AGDataType, seconds: TimeInterval, value: Double) {
 		currentData.add(type: type, seconds: seconds, value: value)
 	}
@@ -112,11 +116,12 @@ open class AGAccumulator {
 	
 	var state: AGAccumulatorState = .stopped
 	
-	// key value pair of data types that we are acumuating data for.
+	/// key value pair of data types that we are acumuating data for.
 	private(set) public var sessionData: AGAccumlatorMultiData = AGAccumlatorMultiData()
 	private(set) public var lapData: AGAccumlatorMultiData = AGAccumlatorMultiData()
-
-	private(set) public var startTimeInterval: TimeInterval? = nil
+	
+	/// Time activity recording started
+	private(set) public var startDate: Date? = nil
 	
 	private var pausedData: AGAccumulatorPausedData = AGAccumulatorPausedData()
 		
@@ -129,24 +134,24 @@ open class AGAccumulator {
 	
 	/// Accumulate this data type, starttime interval is set to the first time interval accumulated.
 	/// - Parameters:
-	///   - timeInterval: time interval of instant value.
+	///   - date: timestamp this data value is for.
 	///   - value: the value of this data type
 	///   - type: the data type to accumulate
-	public func accumulate(timeInterval: TimeInterval, value: Double, type: AGDataType) throws {
+	public func accumulate(date: Date, value: Double, type: AGDataType) throws {
 		
 		guard state.isRunning() else {
 			throw AGAccumlatorError.notRunning
 		}
 
-		guard let startTimeInterval else {
-			throw AGAccumlatorError.notRunning
-		}
-		
 		guard pausedData.paused == false else {
 			return
 		}
-			
-		let seconds = Double(timeInterval - startTimeInterval)
+
+		guard let startDate else {
+			throw AGAccumlatorError.notRunning
+		}
+		
+		let seconds = timeInterval(for: date, since: startDate)
 		lapData.add(type: type, seconds: seconds, value: value)
 		sessionData.add(type: type, seconds: seconds, value: value)
 
@@ -154,14 +159,15 @@ open class AGAccumulator {
 		
 	}
 	
-	public func event(event: AGAccumulatorEvent, at timeInterval: TimeInterval) {
+	public func event(event: AGAccumulatorEvent, at date: Date) {
+
 		switch event {
 		case .pause:
-			pause(timeInterval: timeInterval)
+			pause(date: date)
 		case .resume:
-			resume(timeInterval: timeInterval)
+			resume(date: date)
 		case .start:
-			start(timeInterval: timeInterval)
+			start(startDate: date)
 		case .stop:
 			stop()
 		case .lap:
@@ -171,27 +177,40 @@ open class AGAccumulator {
 		}
 	}
 	
-	private func start(timeInterval: TimeInterval) {
+	private func start(startDate: Date) {
 		guard state == .stopped else {
 			return
 		}
-		startTimeInterval = timeInterval
+		self.startDate = startDate
 		state = .running
 	}
 	
-	private func pause(timeInterval: TimeInterval) {
+	private func pause(date: Date) {
+		
 		guard state.isRunning() else {
 			return
 		}
+
+		guard let startDate else {
+			return
+		}
+		let timeInterval = timeInterval(for: date, since: startDate)
+
 		if pausedData.pause(timeInterval: timeInterval) {
 			state = .paused
 		}
 	}
 	
-	private func resume(timeInterval: TimeInterval) {
+	private func resume(date: Date) {
 		guard state.isRunning() else {
 			return
 		}
+		
+		guard let startDate else {
+			return
+		}
+		let timeInterval = timeInterval(for: date, since: startDate)
+		
 		if pausedData.resume(timeInterval: timeInterval) {
 			state = .running
 		}
@@ -213,5 +232,9 @@ open class AGAccumulator {
 	private  func endSession() {
 		lapData.rollCurrent()
 		sessionData.rollCurrent()
+	}
+	
+	private func timeInterval(for date: Date, since startDate: Date) -> TimeInterval {
+		date.timeIntervalSince(startDate)
 	}
 }
