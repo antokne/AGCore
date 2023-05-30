@@ -10,6 +10,8 @@ import Foundation
 public enum AGPackage: Identifiable, CaseIterable {
 	case alamofire
 	case swiftStrava
+	case sparkle
+	case introspect
 	
 	public var id: AGPackage {
 		self
@@ -22,6 +24,10 @@ public enum AGPackage: Identifiable, CaseIterable {
 			return "Alamofire"
 		case .swiftStrava:
 			return "SwiftStrava"
+		case .sparkle:
+			return "Sparkle"
+		case .introspect:
+			return "Introspect"
 		}
 	}
 	
@@ -31,6 +37,10 @@ public enum AGPackage: Identifiable, CaseIterable {
 			return URL(string: "https://github.com/Alamofire/Alamofire")
 		case .swiftStrava:
 			return URL(string: "https://github.com/antokne/swift-strava")
+		case .sparkle:
+			return URL(string: "https://github.com/sparkle-project/Sparkle")
+		case .introspect:
+			return URL(string: "https://github.com/siteline/SwiftUI-Introspect")
 		}
 	}
 }
