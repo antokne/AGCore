@@ -114,6 +114,37 @@ final class AGAccumlatorDataTests: XCTestCase {
 		XCTAssertEqual(accumData.data[.workoutTime]?.getValue(for: .last), 10)
 	}
 	
+	func testAccumulatedDistance() throws {
+		
+		let date = Date()
+		var accumData = AGAccumulatorData(startDate: date)
+		accumData.add(type: .distance, date: date, value: 0)
+		accumData.add(type: .distance, date: date.plus(1), value: 1)
+		accumData.add(type: .distance, date: date.plus(2), value: 2)
+		accumData.add(type: .distance, date: date.plus(3), value: 3)
+		accumData.add(type: .distance, date: date.plus(4), value: 4)
+		accumData.add(type: .distance, date: date.plus(5), value: 5)
+
+		XCTAssertEqual(accumData.data[.distance]?.getValue(for: .accumulation), 5)
+		
+		// this is alos avg speed which is right?
+		XCTAssertEqual(accumData.data[.distance]?.getValue(for: .accumulationOverTime), 1)
+	}
+	
+	func testAverageSpeed() throws {
+		
+		let date = Date()
+		var accumData = AGAccumulatorData(startDate: date)
+		accumData.add(type: .speed, date: date, value: 1)
+		accumData.add(type: .speed, date: date.plus(1), value: 1)
+		accumData.add(type: .speed, date: date.plus(2), value: 1)
+		accumData.add(type: .speed, date: date.plus(3), value: 1)
+		accumData.add(type: .speed, date: date.plus(4), value: 1)
+		accumData.add(type: .speed, date: date.plus(5), value: 1)
+		
+		XCTAssertEqual(accumData.data[.speed]?.getValue(for: .average), 1)
+	}
+	
 	func testAccumulatorRawData() throws {
 		
 		var data = AGAccumulatorRawData()
