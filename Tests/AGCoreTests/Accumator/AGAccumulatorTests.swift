@@ -155,9 +155,17 @@ final class AGAccumulatorTests: XCTestCase {
 		let value = try XCTUnwrap(accumulator.lapData.currentData.data[.distance]?.getValue(for: .accumulationOverTime))
 		XCTAssertEqual(value, 0.7333, accuracy: 0.01)
 		
+		// nothing should happen, ignore.
+		accumulator.event(event: .reset, at: dateResume.plus(5))
+		XCTAssertEqual(accumulator.lapData.currentData.data[.distance]?.getValue(for: .average), 5.5)
+		
 		// stop
 		accumulator.event(event: .stop, at: dateResume.plus(5))
 		
+		accumulator.event(event: .reset, at: dateResume.plus(6))
+		XCTAssertTrue(accumulator.lapData.currentData.data.count == 1)
+		XCTAssertNotNil(accumulator.lapData.currentData.data[.startTime]?.getValue(for: .last))
+
 	}
 }
 

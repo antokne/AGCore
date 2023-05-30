@@ -34,6 +34,8 @@ public enum AGDataType: Int {
 	case pedalSmoothnessRight
 	case pedalSmoothnessCombined
 	case timestamp
+	case workoutTime
+	case startTime
 }
 
 public struct AGDataTypeValue: Hashable {

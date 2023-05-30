@@ -8,12 +8,30 @@
 import Foundation
 
 public enum AGAccumulatorEvent {
+
+	/// start a recording from stoped state.
 	case start
+	
+	/// Stop the current recording can be either running or paused
 	case stop
+	
+	/// from activiely recording, pause.
 	case pause
+	
+	/// resume from being paused.
 	case resume
+	
+	/// End current and create a new one
 	case lap
+	
+	/// rollover the current session and create a new one
 	case session
+
+	/// Run the polling task
+	case poll
+	
+	/// reset all data collected. only allowed if stopped.
+	case reset
 }
 
 public enum AGAccumlatorSportType {
@@ -23,12 +41,22 @@ public enum AGAccumlatorSportType {
 }
 
 public enum AGAccumulatorState {
+	
+	/// not recording an activity
 	case stopped
+	
+	/// actively recording and summarising data for activity
 	case running
+	
+	/// recording is pause, no data is summarised.
 	case paused
 	
 	func isRunning() -> Bool {
 		self == .running || self == .paused
+	}
+	
+	func paused() -> Bool {
+		self == .paused
 	}
 }
 
@@ -37,94 +65,20 @@ public enum AGAccumlatorError: Error {
 	case running
 }
 
-internal struct AGAccumulatorPausedData {
-	var paused: Bool = false
-	var pausedTimeS: Double = 0
-
-	var pausedStartTimeInterval: TimeInterval?
-
-	@discardableResult
-	mutating func pause(timeInterval: TimeInterval) -> Bool {
-
-		guard !paused else {
-			return false // can't get a paused message when already paused
-		}
-		paused = true
-
-		pausedStartTimeInterval = timeInterval
-		return true
-	}
-
-	@discardableResult
-	mutating func resume(timeInterval: TimeInterval) -> Bool {
-
-		guard paused else {
-			return false// can't get a resume message when not paused
-		}
-		paused = false
-
-		if let pausedStartTimeInterval,
-		 pausedStartTimeInterval < timeInterval {
-			pausedTimeS += (timeInterval - pausedStartTimeInterval)
-		}
-		pausedStartTimeInterval = nil
-		return true
-	}
-}
-
-public struct AGAccumulatorData {
-	private(set) public var data: [AGDataType: AGAverage] = [:]
-	
-	fileprivate(set) public var sport: AGAccumlatorSportType = .roadCycling
-	
-	public mutating func add(type: AGDataType, seconds: TimeInterval, value: Double) {
-		
-		if data[type] == nil {
-			data[type] = AGAverage(type: type)
-		}
-		
-		data[type]?.add(x: seconds, y: value)
-	}
-	
-}
-
-// Can be used for mutliple lap and session data.
-public struct AGAccumlatorMultiData {
-	
-	private(set) public var previousData: [AGAccumulatorData] = []
-	
-	private(set) public var currentData: AGAccumulatorData = AGAccumulatorData()
-
-	public init() {
-		
-	}
-	
-	mutating func add(type: AGDataType, seconds: TimeInterval, value: Double) {
-		currentData.add(type: type, seconds: seconds, value: value)
-	}
-	
-	/// End current data collection, add to previous data and create a new current.
-	mutating func rollCurrent() {
-		previousData.append(currentData)
-		currentData = AGAccumulatorData()
-	}
-
-}
-
 // Have not decided if this should be a protocol or a class...
 open class AGAccumulator {
 	
-	var state: AGAccumulatorState = .stopped
+	private(set) public var state: AGAccumulatorState = .stopped
 	
 	/// key value pair of data types that we are acumuating data for.
-	private(set) public var sessionData: AGAccumlatorMultiData = AGAccumlatorMultiData()
-	private(set) public var lapData: AGAccumlatorMultiData = AGAccumlatorMultiData()
+	private(set) public var sessionData: AGAccumulatorMultiData = AGAccumulatorMultiData()
+	private(set) public var lapData: AGAccumulatorMultiData = AGAccumulatorMultiData()
+	
+	private(set) public var rawData: AGAccumulatorRawData = AGAccumulatorRawData()
 	
 	/// Time activity recording started
 	private(set) public var startDate: Date? = nil
-	
-	private var pausedData: AGAccumulatorPausedData = AGAccumulatorPausedData()
-		
+			
 	public init() {
 		
 	}
@@ -143,20 +97,16 @@ open class AGAccumulator {
 			throw AGAccumlatorError.notRunning
 		}
 
-		guard pausedData.paused == false else {
-			return
-		}
-
 		guard let startDate else {
 			throw AGAccumlatorError.notRunning
 		}
 		
-		let seconds = timeInterval(for: date, since: startDate)
-		lapData.add(type: type, seconds: seconds, value: value)
-		sessionData.add(type: type, seconds: seconds, value: value)
-
-//		print("x: \(seconds) : add value \(value) for type \(type)")
+		lapData.add(type: type, date: date, value: value)
+		sessionData.add(type: type, date: date, value: value)
 		
+		// Add to raw data, this enables us to recreate whatever we want.
+		let seconds = Int(timeInterval(for: date, since: startDate))
+		rawData.add(value: AGDataTypeValue(type: type, value: value), second: seconds, paused: state.paused())
 	}
 	
 	public func event(event: AGAccumulatorEvent, at date: Date) {
@@ -171,9 +121,13 @@ open class AGAccumulator {
 		case .stop:
 			stop()
 		case .lap:
-			lap()
+			lap(date: date)
 		case .session:
-			endSession()
+			endSession(date: date)
+		case .poll:
+			poll(date: date)
+		case .reset:
+			reset()
 		}
 	}
 	
@@ -182,6 +136,8 @@ open class AGAccumulator {
 			return
 		}
 		self.startDate = startDate
+		self.lapData.start(startDate: startDate)
+		self.sessionData.start(startDate: startDate)
 		state = .running
 	}
 	
@@ -190,13 +146,7 @@ open class AGAccumulator {
 		guard state.isRunning() else {
 			return
 		}
-
-		guard let startDate else {
-			return
-		}
-		let timeInterval = timeInterval(for: date, since: startDate)
-
-		if pausedData.pause(timeInterval: timeInterval) {
+		if sessionData.pause(date: date) && lapData.pause(date: date) {
 			state = .paused
 		}
 	}
@@ -205,13 +155,7 @@ open class AGAccumulator {
 		guard state.isRunning() else {
 			return
 		}
-		
-		guard let startDate else {
-			return
-		}
-		let timeInterval = timeInterval(for: date, since: startDate)
-		
-		if pausedData.resume(timeInterval: timeInterval) {
+		if sessionData.resume(date: date) && lapData.resume(date: date) {
 			state = .running
 		}
 	}
@@ -222,19 +166,29 @@ open class AGAccumulator {
 		}
 	}
 	
+	private func reset() {
+		if state == .stopped {
+			sessionData = AGAccumulatorMultiData()
+			lapData = AGAccumulatorMultiData()
+			rawData = AGAccumulatorRawData()
+			startDate = nil
+		}
+	}
+	
+	private func poll(date: Date) {
+		sessionData.updateWorkoutTime(date: date)
+		lapData.updateWorkoutTime(date: date)
+	}
+	
 	/// Indicate a lap has occurred
 	/// Save the current accumulated data ready to generate new accumulations
-	private  func lap() {
-		lapData.rollCurrent()
+	private  func lap(date: Date) {
+		lapData.rollCurrent(date: date)
 	}
 	
 	/// Indicates a session has ended, e.g. change from swim to t1 in a multisport workout.
-	private  func endSession() {
-		lapData.rollCurrent()
-		sessionData.rollCurrent()
-	}
-	
-	private func timeInterval(for date: Date, since startDate: Date) -> TimeInterval {
-		date.timeIntervalSince(startDate)
+	private  func endSession(date: Date) {
+		lapData.rollCurrent(date: date)
+		sessionData.rollCurrent(date: date)
 	}
 }
