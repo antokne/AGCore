@@ -169,8 +169,3 @@ final class AGAccumulatorTests: XCTestCase {
 	}
 }
 
-extension Date {
-	func plus(_ seconds: TimeInterval) -> Date {
-		self.addingTimeInterval(seconds)
-	}
-}

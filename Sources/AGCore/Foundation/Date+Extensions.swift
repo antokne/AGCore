@@ -7,13 +7,20 @@
 
 import Foundation
 
-extension Date {
-	public var startOfWeek: Date? {
+public extension Date {
+	var startOfWeek: Date? {
 		let gregorian = Calendar(identifier: .gregorian)
 		guard let sunday = gregorian.date(from: gregorian.dateComponents([.yearForWeekOfYear, .weekOfYear], from: self))
 		else {
 			return nil
 		}
 		return gregorian.date(byAdding: .day, value: 1, to: sunday)
+	}
+	
+	/// Add n second to date.
+	/// - Parameter seconds: to add
+	/// - Returns: new date with seconds added
+	func plus(_ seconds: TimeInterval) -> Date {
+		self.addingTimeInterval(seconds)
 	}
 }

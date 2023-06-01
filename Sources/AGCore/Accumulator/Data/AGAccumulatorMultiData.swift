@@ -44,4 +44,8 @@ public struct AGAccumulatorMultiData {
 	mutating func updateWorkoutTime(date: Date) {
 		currentData.updateWorkoutTime(date: date)
 	}
+	
+	public var activityTotalTime: TimeInterval {
+		previousData.map { $0.totalTimeS }.reduce(0, +) + currentData.totalTimeS
+	}
 }

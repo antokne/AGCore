@@ -25,7 +25,8 @@ public enum AGDataType: Int {
 	case grade
 	case calories
 	case temperature
-	/// Power left right balance as a percentage < 50% favours the left pedal > 50% favours the right.
+	
+	/// Power left right balance as a percentage <50% favours the left pedal > 50% favours the right.
 	case lrBalance
 	case torqueEffectivenessLeft
 	case torqueEffectivenessRight
@@ -36,6 +37,12 @@ public enum AGDataType: Int {
 	case timestamp
 	case workoutTime
 	case startTime
+	
+	/// An array of range values for each target in m
+	case radarRanges
+	
+	/// An array of speed values for each target in m/s
+	case radarSpeeds
 }
 
 public struct AGDataTypeValue: Hashable {
@@ -45,6 +52,16 @@ public struct AGDataTypeValue: Hashable {
 	public init(type: AGDataType, value: Double) {
 		self.type = type
 		self.value = value
+	}
+}
+
+public struct AGDataTypeArrayValue: Hashable {
+	private(set) public var type: AGDataType
+	private(set) public var values: [Double]
+	
+	public init(type: AGDataType, values: [Double]) {
+		self.type = type
+		self.values = values
 	}
 }
 

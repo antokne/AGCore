@@ -21,6 +21,14 @@ public struct AGAccumulatorData {
 	/// Paused data for this session or lap.
 	private var pausedData: AGAccumulatorPausedData = AGAccumulatorPausedData()
 	
+	public var pausedTimeS: TimeInterval {
+		pausedData.pausedTimeS
+	}
+	
+	public var totalTimeS: TimeInterval {
+		durationS + pausedTimeS
+	}
+	
 	init(sport: AGAccumlatorSportType = .roadCycling , startDate: Date = Date()) {
 		self.sport = sport
 		self.startDate = startDate
@@ -28,6 +36,10 @@ public struct AGAccumulatorData {
 		data[.startTime] = AGAverage(type: .startTime)
 		data[.startTime]?.add(x: 0, y: startDate.timeIntervalSinceReferenceDate)
 		
+	}
+	
+	public func value(for type: AGDataType, avgType: AGAverageType) -> Double? {
+		data[type]?.getValue(for: avgType)
 	}
 	
 	public mutating func add(type: AGDataType, date: Date, value: Double) {

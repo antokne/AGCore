@@ -9,7 +9,7 @@ import Foundation
 
 public struct AGAccumulatorRawInstantData {
 	var instant: [AGDataType: Double] = [: ]
-	var paused: Bool = false
+	internal(set) public var paused: Bool = false
 	mutating func add(value: AGDataTypeValue) {
 		instant[value.type] = value.value
 	}
@@ -23,22 +23,23 @@ public struct AGAccumulatorRawInstantData {
 /// This allows us to recontruct anything using this data.
 /// Recorded at 1Hz as is the standard.
 public struct AGAccumulatorRawData {
-
-	var rawData: [Int: AGAccumulatorRawInstantData] = [: ]
+	
+	/// All data added to raw data dict.
+	private(set) public var data: [Int: AGAccumulatorRawInstantData] = [: ]
 	
 	mutating func add(value: AGDataTypeValue, second: Int, paused: Bool = false) {
-		if rawData[second] == nil {
-			rawData[second] = AGAccumulatorRawInstantData()
+		if data[second] == nil {
+			data[second] = AGAccumulatorRawInstantData()
 		}
-		rawData[second]?.add(value: value)
-		rawData[second]?.paused = paused
+		data[second]?.add(value: value)
+		data[second]?.paused = paused
 	}
 	
 	func value(for second: Int) -> AGAccumulatorRawInstantData? {
-		rawData[second]
+		data[second]
 	}
 	
 	mutating func clear() {
-		rawData = [:] // 💥
+		data = [:] // 💥
 	}
 }
