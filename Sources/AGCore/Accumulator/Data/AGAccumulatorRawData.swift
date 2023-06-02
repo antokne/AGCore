@@ -27,12 +27,22 @@ public struct AGAccumulatorRawData {
 	/// All data added to raw data dict.
 	private(set) public var data: [Int: AGAccumulatorRawInstantData] = [: ]
 	
+	private(set) public var arrayData: [Int: AGDataTypeArrayValue] = [: ]
+	
 	mutating func add(value: AGDataTypeValue, second: Int, paused: Bool = false) {
 		if data[second] == nil {
 			data[second] = AGAccumulatorRawInstantData()
 		}
 		data[second]?.add(value: value)
 		data[second]?.paused = paused
+	}
+	
+	/// Add an array value for this second
+	/// - Parameters:
+	///   - arrayValue: an array of data for this second
+	///   - second: second into activiy this data represents
+	mutating func add(arrayValue: AGDataTypeArrayValue, second: Int) {
+		arrayData[second] = arrayValue
 	}
 	
 	func value(for second: Int) -> AGAccumulatorRawInstantData? {

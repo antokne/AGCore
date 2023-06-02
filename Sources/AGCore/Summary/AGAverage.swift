@@ -43,6 +43,15 @@ public enum AGDataType: Int {
 	
 	/// An array of speed values for each target in m/s
 	case radarSpeeds
+	
+	/// total number of targets detected
+	case radarTargetTotalCount
+	
+	/// Speed in m/s that a target approaches at
+	case radarPassingSpeed
+	
+	// the difference between speed of target and current speed.
+	case radarPassingSpeedAbs
 }
 
 public struct AGDataTypeValue: Hashable {

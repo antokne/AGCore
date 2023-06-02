@@ -109,6 +109,16 @@ open class AGAccumulator {
 		rawData.add(value: AGDataTypeValue(type: type, value: value), second: seconds, paused: state.paused())
 	}
 	
+	public func accumulate(date: Date, arrayValue: AGDataTypeArrayValue) throws {
+		
+		guard let startDate else {
+			throw AGAccumlatorError.notRunning
+		}
+		
+		let seconds = Int(timeInterval(for: date, since: startDate))
+		rawData.add(arrayValue: arrayValue, second: seconds)
+	}
+	
 	public func event(event: AGAccumulatorEvent, at date: Date) {
 
 		switch event {
