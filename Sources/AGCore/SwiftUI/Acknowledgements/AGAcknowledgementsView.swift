@@ -35,7 +35,7 @@ public struct AGAcknowledgementsView: View {
 		}
 		.navigationTitle("Acknowledgements")
 #if os(iOS)
-		.navigationBarTitleDisplayMode(.large)
+		.navigationBarTitleDisplayMode(.inline)
 #endif
 	}
 }
