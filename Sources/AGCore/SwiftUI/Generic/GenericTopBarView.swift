@@ -11,6 +11,11 @@ public struct GenericBarActionView: View {
 	var title: String
 	var action: () -> Void
 	
+	public init(title: String, action: @escaping () -> Void) {
+		self.title = title
+		self.action = action
+	}
+	
 	public var body: some View {
 		Button(title) {
 			action()
