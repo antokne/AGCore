@@ -5,7 +5,9 @@
 //  Created by Antony Gardiner on 19/12/22.
 //
 import Foundation
+#if os(iOS)
 import UIKit
+#endif
 
 public class AGCacheManager {
 	

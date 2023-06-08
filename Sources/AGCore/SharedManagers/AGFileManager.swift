@@ -12,11 +12,16 @@ public class AGFileManager {
 	public static let shared: AGFileManager = AGFileManager()
 	
 	public static var documentsURL = URL.documentsDirectory
-
-	public static func documentsSubDirectory(path: String) -> URL? {
-		let url = AGFileManager.documentsURL.appending(path: "activities")
+	
+	/// Constructs a url  folder from documents folder and creates if required.
+	/// - Parameters:
+	///   - path: path to generate
+	///   - create: create it?
+	/// - Returns: URL if all good.
+	public static func documentsSubDirectory(path: String, create: Bool = true) -> URL? {
+		let url = AGFileManager.documentsURL.appending(path: path)
 		let exists = FileManager.default.fileExists(atPath: url.path())
-		if !exists {
+		if !exists && create {
 			do {
 				try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
 			}
