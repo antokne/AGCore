@@ -40,6 +40,26 @@ public struct AGUserDefaultLastSyncDate {
 	}
 }
 
+public struct AGUserDefaultStringValue {
+	var keyName: String
+	var defaultValue: String
+	
+	public init(keyName: String, defaultValue: String = "") {
+		self.keyName = keyName
+		self.defaultValue = defaultValue
+	}
+	
+	public var stringValue: String {
+		get {
+			let value = UserDefaults.standard.string(forKey: keyName)
+			return value ?? defaultValue
+		}
+		set {
+			UserDefaults.standard.set(newValue, forKey: keyName)
+		}
+	}
+}
+
 public struct AGUserDefaultBoolValue {
 	var keyName: String
 	
