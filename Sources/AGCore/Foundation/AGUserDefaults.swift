@@ -40,16 +40,28 @@ public struct AGUserDefaultLastSyncDate {
 	}
 }
 
+@propertyWrapper
 public struct AGUserDefaultStringValue {
+	
+	public var wrappedValue: String {
+		get {
+			stringValue
+		}
+		set {
+			stringValue = newValue
+		}
+	}
+	
 	var keyName: String
 	var defaultValue: String
 	
 	public init(keyName: String, defaultValue: String = "") {
 		self.keyName = keyName
 		self.defaultValue = defaultValue
+		self.wrappedValue = self.stringValue
 	}
 	
-	public var stringValue: String {
+	private var stringValue: String {
 		get {
 			let value = UserDefaults.standard.string(forKey: keyName)
 			return value ?? defaultValue
@@ -57,6 +69,10 @@ public struct AGUserDefaultStringValue {
 		set {
 			UserDefaults.standard.set(newValue, forKey: keyName)
 		}
+	}
+	
+	public func delete() {
+		UserDefaults.standard.removeObject(forKey: keyName)
 	}
 }
 
