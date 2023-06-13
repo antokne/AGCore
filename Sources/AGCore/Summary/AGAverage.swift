@@ -52,6 +52,73 @@ public enum AGDataType: Int {
 	
 	// the difference between speed of target and current speed.
 	case radarPassingSpeedAbs
+	
+	var units: Unit {
+		switch self {
+		case .speed:
+			return UnitSpeed.metersPerSecond
+		case .speedAccuracy:
+			return UnitSpeed.metersPerSecond
+		case .latitude:
+			return UnitAngle.degrees
+		case .longitude:
+			return UnitAngle.degrees
+		case .horizontalAccuracy:
+			return UnitLength.meters
+		case .power:
+			return UnitPower.watts
+		case .cadence:
+			return AGUnitRevolutions.rpm
+		case .hr:
+			return AGUnitHeartrate.bpm
+		case .distance:
+			return UnitLength.meters
+		case .altitude:
+			return UnitLength.meters
+		case .verticalAccuracy:
+			return UnitLength.meters
+		case .ascent:
+			return UnitLength.meters
+		case .descent:
+			return UnitLength.meters
+		case .grade:
+			return AGUnitPercent.percent
+		case .calories:
+			return UnitEnergy.kilocalories
+		case .temperature:
+			return UnitTemperature.celsius
+		case .lrBalance:
+			return AGUnitPercent.percent
+		case .torqueEffectivenessLeft:
+			return AGUnitPercent.percent
+		case .torqueEffectivenessRight:
+			return AGUnitPercent.percent
+		case .torqueEffectivenessCombined:
+			return AGUnitPercent.percent
+		case .pedalSmoothnessLeft:
+			return AGUnitPercent.percent
+		case .pedalSmoothnessRight:
+			return AGUnitPercent.percent
+		case .pedalSmoothnessCombined:
+			return AGUnitPercent.percent
+		case .timestamp:
+			return UnitDuration.seconds
+		case .workoutTime:
+			return UnitDuration.seconds
+		case .startTime:
+			return AGUnitTime.time
+		case .radarRanges:
+			return UnitLength.meters
+		case .radarSpeeds:
+			return UnitSpeed.metersPerSecond
+		case .radarTargetTotalCount:
+			return AGUnitNone.none
+		case .radarPassingSpeed:
+			return UnitSpeed.metersPerSecond
+		case .radarPassingSpeedAbs:
+			return UnitSpeed.metersPerSecond
+		}
+	}
 }
 
 public struct AGDataTypeValue: Hashable {

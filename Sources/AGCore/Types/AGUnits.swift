@@ -61,3 +61,15 @@ public class AGUnitBoolean : Dimension {
 	}
 
 }
+
+public class AGUnitTime : Dimension {
+	
+	private struct Symbol {
+		static let time      = "hms"
+	}
+	
+	public class var time: AGUnitTime {
+		return AGUnitTime(symbol: Symbol.time)
+	}
+	
+}
