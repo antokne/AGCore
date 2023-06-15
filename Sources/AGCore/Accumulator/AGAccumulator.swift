@@ -70,6 +70,8 @@ open class AGAccumulator {
 	
 	private(set) public var state: AGAccumulatorState = .stopped
 	
+	private(set) public var instantData: [AGDataType: Double] = [:]
+	
 	/// key value pair of data types that we are acumuating data for.
 	private(set) public var sessionData: AGAccumulatorMultiData = AGAccumulatorMultiData()
 	private(set) public var lapData: AGAccumulatorMultiData = AGAccumulatorMultiData()
@@ -85,6 +87,9 @@ open class AGAccumulator {
 	
 	// an accumulator gets instant values from somewhere and accumulates them into various things
 
+	public func add(instant value: Double, type: AGDataType) {
+		instantData[type] = value
+	}
 	
 	/// Accumulate this data type, starttime interval is set to the first time interval accumulated.
 	/// - Parameters:
@@ -186,8 +191,10 @@ open class AGAccumulator {
 	}
 	
 	private func poll(date: Date) {
-		sessionData.updateWorkoutTime(date: date)
-		lapData.updateWorkoutTime(date: date)
+		if state.isRunning() {
+			sessionData.updateWorkoutTime(date: date)
+			lapData.updateWorkoutTime(date: date)
+		}
 	}
 	
 	/// Indicate a lap has occurred
