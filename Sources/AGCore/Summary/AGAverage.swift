@@ -43,6 +43,9 @@ public enum AGDataType: Int {
 	
 	/// An array of speed values for each target in m/s
 	case radarSpeeds
+
+	/// Number of targets currently in range
+	case radarTargetCount
 	
 	/// total number of targets detected
 	case radarTargetTotalCount
@@ -53,7 +56,7 @@ public enum AGDataType: Int {
 	// the difference between speed of target and current speed.
 	case radarPassingSpeedAbs
 	
-	var units: Unit {
+	public var units: Dimension {
 		switch self {
 		case .speed:
 			return UnitSpeed.metersPerSecond
@@ -117,6 +120,128 @@ public enum AGDataType: Int {
 			return UnitSpeed.metersPerSecond
 		case .radarPassingSpeedAbs:
 			return UnitSpeed.metersPerSecond
+		case .radarTargetCount:
+			return AGUnitNone.none
+		}
+	}
+	
+	
+	public var displayedDimension: Dimension {
+		let metric = Locale.current.measurementSystem == .metric
+		switch self {
+		case .speed, .speedAccuracy:
+			return metric ? UnitSpeed.kilometersPerHour : UnitSpeed.milesPerHour
+		case .latitude, .longitude:
+			return UnitAngle.degrees
+		case .horizontalAccuracy:
+			return UnitLength.meters
+		case .power:
+			return UnitPower.watts
+		case .cadence:
+			return AGUnitRevolutions.rpm
+		case .hr:
+			return AGUnitHeartrate.bpm
+		case .distance:
+			return metric ? UnitLength.kilometers : UnitLength.miles
+		case .altitude, .verticalAccuracy, .ascent, .descent:
+			return metric ? UnitLength.meters : UnitLength.feet
+		case .grade:
+			return AGUnitPercent.percent
+		case .calories:
+			return UnitEnergy.kilocalories
+		case .temperature:
+			return metric ? UnitTemperature.celsius : UnitTemperature.fahrenheit
+		case .lrBalance,
+				.torqueEffectivenessLeft,
+				.torqueEffectivenessRight,
+				.torqueEffectivenessCombined,
+				.pedalSmoothnessLeft,
+				.pedalSmoothnessRight,
+				.pedalSmoothnessCombined:
+			return AGUnitPercent.percent
+		case .timestamp:
+			return AGUnitNone.none
+		case .workoutTime:
+			return AGUnitNone.none
+		case .startTime:
+			return AGUnitNone.none
+		case .radarRanges:
+			return metric ? UnitLength.meters : UnitLength.feet
+		case .radarSpeeds:
+			return metric ? UnitSpeed.kilometersPerHour : UnitSpeed.milesPerHour
+		case .radarTargetTotalCount:
+			return AGUnitNone.none
+		case .radarPassingSpeed:
+			return metric ? UnitSpeed.kilometersPerHour : UnitSpeed.milesPerHour
+		case .radarPassingSpeedAbs:
+			return metric ? UnitSpeed.kilometersPerHour : UnitSpeed.milesPerHour
+		case .radarTargetCount:
+			return AGUnitNone.none
+		}
+	}
+	
+	var precision: Int {
+		switch self {
+		case .speed, .speedAccuracy:
+			return 1
+		case .latitude, .longitude:
+			return 5
+		case .horizontalAccuracy:
+			return 0
+		case .power:
+			return 0
+		case .cadence:
+			return 0
+		case .hr:
+			return 0
+		case .distance:
+			return 1
+		case .altitude, .verticalAccuracy, .ascent, .descent:
+			return 0
+		case .grade:
+			return 0
+		case .calories:
+			return 0
+		case .temperature:
+			return 0
+		case .lrBalance,
+				.torqueEffectivenessLeft,
+				.torqueEffectivenessRight,
+				.torqueEffectivenessCombined,
+				.pedalSmoothnessLeft,
+				.pedalSmoothnessRight,
+				.pedalSmoothnessCombined:
+			return 0
+		case .timestamp:
+			return 0
+		case .workoutTime:
+			return 0
+		case .startTime:
+			return 0
+		case .radarRanges:
+			return 0
+		case .radarSpeeds:
+			return 0
+		case .radarTargetTotalCount:
+			return 0
+		case .radarPassingSpeed:
+			return 0
+		case .radarPassingSpeedAbs:
+			return 0
+		case .radarTargetCount:
+			return 0
+		}
+	}
+	
+	public func format(value: Double) -> String {
+		switch self {
+		case .workoutTime, .startTime:
+			return AGFormatter.durationFormat(timeInterval: value)
+		default:
+			let measurement = Measurement(value: value, unit: self.units)
+			let convertTo = self.displayedDimension
+			let convertedValue = measurement.converted(to: convertTo)
+			return String(format: "%.*f", self.precision, convertedValue.value)
 		}
 	}
 }
@@ -222,7 +347,7 @@ public struct AGAverage {
 	/// - Parameters:
 	///   - x: x value
 	///   - y: y value
-	mutating func add(x: Double, y: Double) {
+	public mutating func add(x: Double, y: Double) {
 		
 		if self.left.x == AGAverage.NotSet || x < self.left.x
 		{
