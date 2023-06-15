@@ -19,10 +19,14 @@ public class AGUnitRevolutions: Dimension {
     }
 }
 
-public class AGUnitNone: Unit {
+public class AGUnitNone: Dimension {
     
     // TODO: localize RPM
-	public static let none = AGUnitNone(symbol: "")
+	public static let none = AGUnitNone(symbol: "", converter: UnitConverterLinear(coefficient: 1.0))
+	
+	override public class func baseUnit() -> Self {
+		none as! Self
+	}
     
 }
 
