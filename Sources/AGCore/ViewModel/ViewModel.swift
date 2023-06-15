@@ -43,27 +43,7 @@ open class ViewModel {
 	}
 
 	public static func durationFormat(timeInterval: TimeInterval) -> String {
-		let duration = Duration.seconds(timeInterval)
-
-		var pattern = Duration.TimeFormatStyle.Pattern.hourMinute
-		
-		switch timeInterval {
-		case 3600...86400:
-			pattern = Duration.TimeFormatStyle.Pattern.hourMinuteSecond
-		case 86400...2628288:
-			let days = Int(timeInterval / 86400.0)
-			return "\(days) " + "days"
-		case 2628288...31557600:
-			let months = Int(timeInterval / 2628288.0)
-			return "\(months) " + "months"
-		case 31557600...:
-			let years = Int(timeInterval / 31557600.0)
-			return "\(years) " + "years"
-		default:
-			pattern = Duration.TimeFormatStyle.Pattern.minuteSecond
-		}
-		
-		return duration.formatted(.time(pattern: pattern))
+		return AGFormatter.durationFormat(timeInterval: timeInterval)
 	}
 	
 	public static var distanceFormatter: MeasurementFormatter = {
