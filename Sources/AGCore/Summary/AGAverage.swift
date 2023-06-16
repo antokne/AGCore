@@ -426,9 +426,9 @@ public struct AGAverage {
 		case .average:
 			return getAverage()
 		case .max:
-			return max.y
+			return max.y != AGAverage.NotSet ? max.y : nil
 		case .min:
-			return min.y
+			return min.y != AGAverage.NotSet ? min.y : nil
 		case .range:
 			return max.y - min.y
 		case .accumulation:
@@ -436,7 +436,7 @@ public struct AGAverage {
 		case .accumulationOverTime:
 			return getAccummulatedAverage()
 		case .last:
-			return right.y
+			return right.y != AGAverage.NotSet ? right.y : nil
 		case .first:
 			return left.y;
 		}
