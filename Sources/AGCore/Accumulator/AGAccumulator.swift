@@ -121,7 +121,7 @@ open class AGAccumulator {
 		}
 		
 		let seconds = Int(timeInterval(for: date, since: startDate))
-		rawData.add(arrayValue: arrayValue, second: seconds)
+		rawData.add(arrayValue: arrayValue, second: seconds, paused: state.paused())
 	}
 	
 	public func event(event: AGAccumulatorEvent, at date: Date) {

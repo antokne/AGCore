@@ -19,6 +19,19 @@ public struct AGAccumulatorRawInstantData {
 	}
 }
 
+public struct AGAccumulatorRawArrayInstantData {
+	var instant: [AGDataType: [Double]] = [: ]
+	internal(set) public var paused: Bool = false
+	mutating func add(value: AGDataTypeArrayValue) {
+		instant[value.type] = value.values
+	}
+	
+	public func values(for type: AGDataType) -> [Double]? {
+		instant[type]
+	}
+}
+
+
 /// A struct that contains all the data we are collecting whether paused or not.
 /// This allows us to recontruct anything using this data.
 /// Recorded at 1Hz as is the standard.
@@ -27,7 +40,7 @@ public struct AGAccumulatorRawData {
 	/// All data added to raw data dict.
 	private(set) public var data: [Int: AGAccumulatorRawInstantData] = [: ]
 	
-	private(set) public var arrayData: [Int: AGDataTypeArrayValue] = [: ]
+	private(set) public var arrayData: [Int: AGAccumulatorRawArrayInstantData] = [: ]
 	
 	mutating func add(value: AGDataTypeValue, second: Int, paused: Bool = false) {
 		if data[second] == nil {
@@ -41,8 +54,12 @@ public struct AGAccumulatorRawData {
 	/// - Parameters:
 	///   - arrayValue: an array of data for this second
 	///   - second: second into activiy this data represents
-	mutating func add(arrayValue: AGDataTypeArrayValue, second: Int) {
-		arrayData[second] = arrayValue
+	mutating func add(arrayValue: AGDataTypeArrayValue, second: Int, paused: Bool = false) {
+		if arrayData[second] == nil {
+			arrayData[second] = AGAccumulatorRawArrayInstantData()
+		}
+		arrayData[second]?.add(value: arrayValue)
+		arrayData[second]?.paused = paused
 	}
 	
 	func value(for second: Int) -> AGAccumulatorRawInstantData? {
