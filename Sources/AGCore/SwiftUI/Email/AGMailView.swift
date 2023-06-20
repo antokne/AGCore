@@ -5,6 +5,8 @@
 //  Created by Antony Gardiner on 19/06/23.
 //
 
+#if os(iOS)
+
 import SwiftUI
 import MessageUI
 
@@ -96,3 +98,5 @@ public struct AGMailView: UIViewControllerRepresentable {
 		
 	}
 }
+
+#endif

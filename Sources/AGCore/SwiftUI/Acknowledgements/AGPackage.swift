@@ -43,7 +43,7 @@ public enum AGPackage: Identifiable, CaseIterable {
 		case .fitnessUnits:
 			return "FitnessUnits"
 		case .polyline:
-			return "polyline"
+			return "Polyline"
 		case .swiftLocation:
 			return "SwiftLocation"
 		case .asyncBluetooth:
