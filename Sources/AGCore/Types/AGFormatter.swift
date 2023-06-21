@@ -157,3 +157,18 @@ public class AGFormatter: NSObject {
 //		return measurementFormatter.string(from: measurement)
 	}
 }
+
+// Simple quick conversions
+public extension AGFormatter {
+	func metersPerSecondToKilometersPerHour(mps: Double) -> Double {
+		mps * 3.6
+	}
+	
+	func metersPerSecondToMilesPerHour(mps: Double) -> Double {
+		mps * 2.236936292
+	}
+	
+	func metersTofeet(meters: Double) -> Double {
+		meters * 3.280839895
+	}
+}
