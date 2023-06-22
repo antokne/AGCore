@@ -36,8 +36,9 @@ public class AGLogger {
 	
 	func getLogEntries() throws -> [OSLogEntryLog] {
 		let logStore = try OSLogStore(scope: .currentProcessIdentifier)
-		let postion = logStore.position(date: Date().addingTimeInterval(-posistionSince))
-		let allEntries = try logStore.getEntries(at: postion)
+		let dateFrom = Date().addingTimeInterval(-posistionSince)
+		let position = logStore.position(date: dateFrom)
+		let allEntries = try logStore.getEntries(at: position)
 		let osLogEntryLogObjects = allEntries.compactMap { $0 as? OSLogEntryLog }
 				
 		return osLogEntryLogObjects.filter { $0.subsystem.hasPrefix(subSystemPrefex) }
