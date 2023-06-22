@@ -33,7 +33,7 @@ public class AGCacheManager {
 			if FileManager.default.fileExists(atPath: fileUrl.path(percentEncoded: false)) {
 				do {
 					let data = try Data(contentsOf: fileUrl)
-					let image = AGImage(data: data, scale: UIScreen.main.scale)
+					let image = AGImage(data: data, scale: AGImage.screenScale())
 					return image
 				}
 				catch {

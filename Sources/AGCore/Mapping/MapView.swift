@@ -35,7 +35,7 @@ public struct MapView: UIViewRepresentable {
 #if os(macOS)
 public struct MapView: NSViewRepresentable {
 		
-	typealias NSViewType = MKMapView
+	public typealias NSViewType = MKMapView
 	
 	let region: MKCoordinateRegion
 	let lineCoordinates: [CLLocationCoordinate2D]

@@ -10,6 +10,7 @@ import MapKit
 
 public class MapViewSnapshot: NSObject {
 	
+#if os(iOS)
 	public func generateSnapshotImageView(coords: [CLLocationCoordinate2D], size: CGSize, colour: AGColor, width: CGFloat) async throws -> AGImage? {
 
 		let polyLine = MKPolyline.init(coordinates: coords, count: coords.count)
@@ -17,7 +18,7 @@ public class MapViewSnapshot: NSObject {
 		let options = MKMapSnapshotter.Options()
 		options.mapRect = polyLine.boundingMapRect
 		options.size = size
-		await options.scale = UIScreen.main.scale
+		options.scale = AGImage.screenScale()
 		
 		let snapShotter = MKMapSnapshotter(options: options)
 		
@@ -56,4 +57,6 @@ public class MapViewSnapshot: NSObject {
 		
 		return generatedImage
 	}
+#endif
+
 }
