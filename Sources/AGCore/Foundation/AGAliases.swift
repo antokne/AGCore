@@ -44,8 +44,8 @@ public typealias AGImage = UIImage
 
 extension AGImage {
 	
-	public convenience init?(systemSymbolName name: String, accessibilityDescription description: String?) {
-		self.init(systemName: name)
+	public convenience init?(systemSymbolName emailAddress: String, accessibilityDescription description: String?) {
+		self.init(systemName: emailAddress)
 	}
 	
 	public static func screenScale() -> Double {
