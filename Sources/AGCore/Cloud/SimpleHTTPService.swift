@@ -22,7 +22,7 @@ public struct SimpleHTTPAuth: AGCloudServiceSiteProtocol {
 	public let email: String
 	public let password: String
 	public var token: String?
-	static let simpleAuthKey = "simepleAuth"
+	static let simpleAuthKey = "simepleAuth" // !!!
 	
 	init(service: String, email: String, password: String) {
 		self.service = service
@@ -57,17 +57,12 @@ public enum SimpleHTTPError: Error {
 	case invalidURL
 	case authenticationFailed
 	case noKnownService
+	case uploadFailed
+	case serverError(error: String)
 }
 
-public enum SimpleHTTPLoginCheck {
+public enum SimpleHTTPLoginType {
 	case myBikeTrafficCookie
-	
-	var key: String {
-		switch self {
-		case .myBikeTrafficCookie:
-			return "Cookie"
-		}
-	}
 }
 
 public protocol AGCloudServiceProtcol {
@@ -75,10 +70,10 @@ public protocol AGCloudServiceProtcol {
 }
 
 
-// TODO: - Make this conform to a protocol
+// TODO: - Make MyBikeTraffic it's own thing and this just calls it.
 public struct SimpleHTTPService: AGCloudServiceProtcol {
 	
-	var loginType: SimpleHTTPLoginCheck = .myBikeTrafficCookie
+	var loginType: SimpleHTTPLoginType = .myBikeTrafficCookie
 	var loginURL: URL?
 	var uploadURL: URL?
 	
@@ -89,33 +84,47 @@ public struct SimpleHTTPService: AGCloudServiceProtcol {
 
 	public func login(email: String, password: String) async throws -> String? {
 		
-		let loginString = "\(email):\(password)"
-		
-		guard let loginData = loginString.data(using: String.Encoding.utf8) else {
-			throw SimpleHTTPError.invalidEmailPassword
-		}
-		let base64LoginString = loginData.base64EncodedString()
-		
 		guard let loginURL else {
 			throw SimpleHTTPError.invalidURL
 		}
 		
 		var request = URLRequest(url: loginURL)
-		request.httpMethod = "GET"
-		request.setValue("Basic \(base64LoginString)", forHTTPHeaderField: "Authorization")
-		
-		let (_, response) = try await URLSession.shared.data(for: request)
-		guard let httpResponse = response as? HTTPURLResponse,
-			  httpResponse.statusCode == 200 else {
-			throw SimpleHTTPError.invalidServerResponse
+		request.httpMethod = "POST"
+		request.addValue("application/x-www-form-urlencoded; charset=utf-8", forHTTPHeaderField: "Content-Type")
+		if let host = loginURL.host(percentEncoded: false) {
+			request.addValue(host, forHTTPHeaderField: "Host")
 		}
+
+		let bodyParameters = [
+			"email": email,
+			"password": password,
+		]
+		let bodyString: String = bodyParameters.queryParameters
+		request.httpBody = bodyString.data(using: .utf8, allowLossyConversion: true)
+		request.httpShouldHandleCookies = false
+		
+		var sessionDelegate: URLSessionDelegate? = nil
 		
 		switch self.loginType {
 		case .myBikeTrafficCookie:
+			sessionDelegate = MyBikeTrafficDelegate()
+		}
+		
+		let configuration = URLSessionConfiguration.default
+		let session = URLSession(configuration: configuration, delegate: sessionDelegate, delegateQueue: nil)
+		
+		let (_, response) = try await session.data(for: request)
+		
+		switch self.loginType {
+		case .myBikeTrafficCookie:
+			
+			guard let httpResponse = response as? HTTPURLResponse,
+				  httpResponse.statusCode == 302 else {
+				throw SimpleHTTPError.invalidServerResponse
+			}
+			
 			let cookie = httpResponse.value(forHTTPHeaderField: "Set-Cookie")
 			let result = cookie?.split(separator: ";").first
-			//let result2 = result?.split(separator: "=")
-//			let token = result //2?.last
 			
 			guard let result else {
 				throw SimpleHTTPError.authenticationFailed
@@ -125,6 +134,11 @@ public struct SimpleHTTPService: AGCloudServiceProtcol {
 		}
 	}
 	
+	/// Attempts to upload a fit file and returns the id of the uploaded file if sucessful
+	/// - Parameters:
+	///   - fileURL: url of the file to upload
+	///   - auth: auth details to use in upload
+	/// - Returns: the id on the file uploaded on the server that can be used in linking
 	public func upload(fileURL: URL, using auth: AGCloudServiceSiteProtocol) async throws -> String {
 		
 		guard let uploadURL else {
@@ -144,25 +158,45 @@ public struct SimpleHTTPService: AGCloudServiceProtcol {
 				throw SimpleHTTPError.authenticationFailed
 			}
 			
+			let contentType = "application/vnd.ant.fit"
+			let multiPartFormRequest = AGMultiPartFormRequest(name: "fitfile",
+															  boundary: "__X_BOUNDARY__",
+															  fileURL: fileURL,
+															  contentType: contentType,
+															  cookie: cookie)
+			
+			let uploadRequest = try multiPartFormRequest.asURLRequest(url: uploadURL)
 
-			
-			var uploadRequest = URLRequest(url: uploadURL)
-			uploadRequest.httpMethod = "POST"
-			uploadRequest.setValue("www.mybiketraffic.com", forHTTPHeaderField: "Host")
-			uploadRequest.setValue(cookie, forHTTPHeaderField: loginType.key)
-			uploadRequest.httpShouldHandleCookies = true
-			
-			
 			let delegate = UploadServiceDelegate(delegate: self) as? URLSessionTaskDelegate
-			let (data, response) = try await URLSession.shared.upload(for: uploadRequest,
-																	  fromFile: fileURL,
-																	  delegate: delegate)
+			let (data, response) = try await URLSession.shared.data(for: uploadRequest, delegate: delegate)
 			
 			print("\(data)")
 			print("\(response)")
-
-			// TODO: Extract the id if ok otherwise return an error
-			return "unknown id"
+			
+			var mbtResponse: MyBikeTrafficUploadResponse? = nil
+			do {
+				mbtResponse = try data.decodeData()
+			}
+			catch {
+				// IF we get a decoding error probably some error.
+				if let jsonObject = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+				let error = jsonObject["err"] as? String{
+					throw SimpleHTTPError.serverError(error: error)
+				}
+			}
+			
+			if let dup = mbtResponse?.dup {
+				// already uploaded is not an error.
+				return dup
+			}
+			if let error = mbtResponse?.err {
+				throw SimpleHTTPError.serverError(error: error)
+			}
+			guard let rideId = mbtResponse?.ride?.id else {
+				throw SimpleHTTPError.uploadFailed
+			}
+			
+			return String(rideId)
 		}
 	}
 	
@@ -175,7 +209,7 @@ extension SimpleHTTPService {
 	
 	public static let myBikeTrafficService = SimpleHTTPService(loginType: .myBikeTrafficCookie,
 															   loginURL: URL(string: "https://www.mybiketraffic.com/auth/login"),
-															   uploadURL: URL(string: "https://www.mybiketraffic.com/import"))
+															   uploadURL: URL(string: "https://www.mybiketraffic.com/rides/upload"))
 }
 
 
