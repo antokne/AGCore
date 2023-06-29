@@ -14,7 +14,7 @@ public class SimpleHTTPLoginViewModel: ObservableObject, Identifiable{
 	
 	@Published var sucess: Bool = true
 	
-	@Published var siteName: String = "Website name"
+	@Published var siteName: String
 	@Published var siteImageName: String? = nil
 
 	@Published var title: String? = "Please enter login details:"

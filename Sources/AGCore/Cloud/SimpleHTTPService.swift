@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import os
 
 public protocol AGCloudServiceSiteProtocol: Codable {
 	var service: String { get }
@@ -62,7 +63,14 @@ public enum SimpleHTTPError: Error {
 }
 
 public enum SimpleHTTPLoginType {
-	case myBikeTrafficCookie
+	case myBikeTraffic
+	
+	var name: String {
+		switch self {
+		case .myBikeTraffic:
+			return "MyBikeTraffic.com"
+		}
+	}
 }
 
 public protocol AGCloudServiceProtcol {
@@ -73,7 +81,7 @@ public protocol AGCloudServiceProtcol {
 // TODO: - Make MyBikeTraffic it's own thing and this just calls it.
 public struct SimpleHTTPService: AGCloudServiceProtcol {
 	
-	var loginType: SimpleHTTPLoginType = .myBikeTrafficCookie
+	public private(set) var loginType: SimpleHTTPLoginType = .myBikeTraffic
 	var loginURL: URL?
 	var uploadURL: URL?
 	
@@ -81,12 +89,16 @@ public struct SimpleHTTPService: AGCloudServiceProtcol {
 	public lazy var uploadProgresssPublisher: AnyPublisher<Double, Never> = {
 		self.uploadProgress.eraseToAnyPublisher()
 	}()
+	
+	private var logger = Logger(subsystem: "com.antokne.agcore", category: "SimpleHTTPService")
 
 	public func login(email: String, password: String) async throws -> String? {
 		
 		guard let loginURL else {
 			throw SimpleHTTPError.invalidURL
 		}
+		
+		logger.info("login attempt for \(loginType.name, privacy: .public)")
 		
 		var request = URLRequest(url: loginURL)
 		request.httpMethod = "POST"
@@ -106,7 +118,7 @@ public struct SimpleHTTPService: AGCloudServiceProtcol {
 		var sessionDelegate: URLSessionDelegate? = nil
 		
 		switch self.loginType {
-		case .myBikeTrafficCookie:
+		case .myBikeTraffic:
 			sessionDelegate = MyBikeTrafficDelegate()
 		}
 		
@@ -116,10 +128,12 @@ public struct SimpleHTTPService: AGCloudServiceProtcol {
 		let (_, response) = try await session.data(for: request)
 		
 		switch self.loginType {
-		case .myBikeTrafficCookie:
+		case .myBikeTraffic:
 			
 			guard let httpResponse = response as? HTTPURLResponse,
 				  httpResponse.statusCode == 302 else {
+				
+				logger.info("login attempt failed did not get a 302 status code")
 				throw SimpleHTTPError.invalidServerResponse
 			}
 			
@@ -127,9 +141,12 @@ public struct SimpleHTTPService: AGCloudServiceProtcol {
 			let result = cookie?.split(separator: ";").first
 			
 			guard let result else {
+				logger.info("login attempt failed got a status code did not get a cookie.")
 				throw SimpleHTTPError.authenticationFailed
 			}
-			
+
+			logger.debug("login with a cookie \(result)")
+
 			return String(result)
 		}
 	}
@@ -141,7 +158,10 @@ public struct SimpleHTTPService: AGCloudServiceProtcol {
 	/// - Returns: the id on the file uploaded on the server that can be used in linking
 	public func upload(fileURL: URL, using auth: AGCloudServiceSiteProtocol) async throws -> String {
 		
+		logger.info("upload file \(fileURL, privacy: .public)")
+
 		guard let uploadURL else {
+			logger.fault("Did not get a file")
 			throw SimpleHTTPError.invalidURL
 		}
 		
@@ -150,11 +170,13 @@ public struct SimpleHTTPService: AGCloudServiceProtcol {
 		
 		// if nil then try the one we currently have
 		switch self.loginType {
-		case .myBikeTrafficCookie:
+		case .myBikeTraffic:
 			if result == nil {
+				logger.warning("Trying to use saved cookie, this may fail.")
 				result = auth.token
 			}
 			guard let cookie = result else {
+				logger.warning("Cookie is still nil can't continue.")
 				throw SimpleHTTPError.authenticationFailed
 			}
 			
@@ -168,34 +190,38 @@ public struct SimpleHTTPService: AGCloudServiceProtcol {
 			let uploadRequest = try multiPartFormRequest.asURLRequest(url: uploadURL)
 
 			let delegate = UploadServiceDelegate(delegate: self) as? URLSessionTaskDelegate
-			let (data, response) = try await URLSession.shared.data(for: uploadRequest, delegate: delegate)
-			
-			print("\(data)")
-			print("\(response)")
+			let (data, _) = try await URLSession.shared.data(for: uploadRequest, delegate: delegate)
 			
 			var mbtResponse: MyBikeTrafficUploadResponse? = nil
 			do {
 				mbtResponse = try data.decodeData()
 			}
 			catch {
-				// IF we get a decoding error probably some error.
+				logger.warning("Decoding json data failed \(String(data: data, encoding: .utf8) ?? "?", privacy: .public).")
+
+				// If we get a decoding error probably some error.
 				if let jsonObject = try JSONSerialization.jsonObject(with: data) as? [String: Any],
 				let error = jsonObject["err"] as? String{
+					logger.fault("Failed to get error from parsing json")
 					throw SimpleHTTPError.serverError(error: error)
 				}
 			}
 			
 			if let dup = mbtResponse?.dup {
 				// already uploaded is not an error.
+				logger.info("Gor dup result \(dup, privacy: .public).")
 				return dup
 			}
 			if let error = mbtResponse?.err {
+				logger.warning("Server error \(error, privacy: .public)")
 				throw SimpleHTTPError.serverError(error: error)
 			}
 			guard let rideId = mbtResponse?.ride?.id else {
+				logger.error("failed to upload file.")
 				throw SimpleHTTPError.uploadFailed
 			}
 			
+			logger.info("File uploaded got ride id \(rideId, privacy: .public).")
 			return String(rideId)
 		}
 	}
@@ -207,7 +233,7 @@ public struct SimpleHTTPService: AGCloudServiceProtcol {
 
 extension SimpleHTTPService {
 	
-	public static let myBikeTrafficService = SimpleHTTPService(loginType: .myBikeTrafficCookie,
+	public static let myBikeTrafficService = SimpleHTTPService(loginType: .myBikeTraffic,
 															   loginURL: URL(string: "https://www.mybiketraffic.com/auth/login"),
 															   uploadURL: URL(string: "https://www.mybiketraffic.com/rides/upload"))
 }
