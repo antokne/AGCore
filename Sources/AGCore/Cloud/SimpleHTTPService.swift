@@ -209,7 +209,7 @@ public struct SimpleHTTPService: AGCloudServiceProtcol {
 			
 			if let dup = mbtResponse?.dup {
 				// already uploaded is not an error.
-				logger.info("Gor dup result \(dup, privacy: .public).")
+				logger.info("Got dup result \(dup, privacy: .public).")
 				return dup
 			}
 			if let error = mbtResponse?.err {
