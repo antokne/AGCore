@@ -90,7 +90,7 @@ public struct SimpleHTTPService: AGCloudServiceProtcol {
 		self.uploadProgress.eraseToAnyPublisher()
 	}()
 	
-	private var logger = Logger(subsystem: "com.antokne.agcore", category: "SimpleHTTPService")
+	private var logger = Logger(subsystem: "com.antokne.core", category: "SimpleHTTPService")
 
 	public func login(email: String, password: String) async throws -> String? {
 		
