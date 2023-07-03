@@ -55,6 +55,8 @@ public enum AGDataType: Int {
 	
 	// the difference between speed of target and current speed.
 	case radarPassingSpeedAbs
+    
+    case radarStatus
 	
 	public var units: Dimension {
 		switch self {
@@ -122,7 +124,9 @@ public enum AGDataType: Int {
 			return UnitSpeed.metersPerSecond
 		case .radarTargetCount:
 			return AGUnitNone.none
-		}
+        case .radarStatus:
+            return AGUnitNone.none
+        }
 	}
 	
 	
@@ -177,7 +181,9 @@ public enum AGDataType: Int {
 			return metric ? UnitSpeed.kilometersPerHour : UnitSpeed.milesPerHour
 		case .radarTargetCount:
 			return AGUnitNone.none
-		}
+        case .radarStatus:
+            return AGUnitNone.none
+        }
 	}
 	
 	var precision: Int {
@@ -230,7 +236,9 @@ public enum AGDataType: Int {
 			return 0
 		case .radarTargetCount:
 			return 0
-		}
+        case .radarStatus:
+            return 0
+        }
 	}
 	
 	public func format(value: Double) -> String {
