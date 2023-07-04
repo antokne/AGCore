@@ -56,6 +56,7 @@ public enum AGDataType: Int {
 	// the difference between speed of target and current speed.
 	case radarPassingSpeedAbs
     
+    /// What is the current status of the radar. connected or disconnected?
     case radarStatus
 	
 	public var units: Dimension {
