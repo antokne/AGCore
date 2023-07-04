@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  AGApplicationEventsViewModifier.swift
 //  
 //
 //  Created by Ant Gardiner on 4/07/23.
