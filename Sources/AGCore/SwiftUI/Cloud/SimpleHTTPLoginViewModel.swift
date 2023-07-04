@@ -8,6 +8,10 @@
 import Foundation
 import SwiftUI
 
+enum SimpleHTTPLoginField: Hashable {
+    case email
+    case password
+}
 
 @MainActor
 public class SimpleHTTPLoginViewModel: ObservableObject, Identifiable{

@@ -13,7 +13,9 @@ struct SimpleHTTPLoginDetailView: View {
 
 	@ObservedObject var viewModel: SimpleHTTPLoginViewModel
 
-	public var body: some View {
+    @FocusState private var focusedField: SimpleHTTPLoginField?
+    
+    public var body: some View {
 		VStack() {
 			if let title = viewModel.title {
 				Text(title)
@@ -25,6 +27,7 @@ struct SimpleHTTPLoginDetailView: View {
 					  text: $viewModel.email ,
 					  prompt: Text("email").foregroundColor(.accentColor)
 			)
+            .focused($focusedField, equals: .email)
 			.padding(10)
 			.overlay {
 				RoundedRectangle(cornerRadius: 10)
@@ -38,11 +41,13 @@ struct SimpleHTTPLoginDetailView: View {
 						TextField("Password", // how to create a secure text field
 								  text: $viewModel.password,
 								  prompt: Text("Password").foregroundColor(.accentColor)) // How to change the color of the TextField Placeholder
+                        .focused($focusedField, equals: .password)
 					} else {
 						SecureField("Password", // how to create a secure text field
 									text: $viewModel.password,
 									prompt: Text("Password").foregroundColor(.accentColor)) // How to change the color of the TextField Placeholder
-					}
+                        .focused($focusedField, equals: .password)
+                    }
 				}
 				.padding(10)
 				.overlay() {
@@ -67,7 +72,7 @@ struct SimpleHTTPLoginDetailView: View {
 				
 				Button {
 					viewModel.signIn()
-					UIApplication.shared.keyWindow?.endEditing(false)
+					focusedField = nil
 				} label: {
 					Text("Log In")
 						.font(.title2)
