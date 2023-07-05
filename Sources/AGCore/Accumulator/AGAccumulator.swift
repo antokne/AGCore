@@ -34,13 +34,13 @@ public enum AGAccumulatorEvent {
 	case reset
 }
 
-public enum AGAccumlatorSportType {
+public enum AGAccumlatorSportType: Codable {
 	case roadCycling
 	case gravelCylcing
 	case mtb
 }
 
-public enum AGAccumulatorState {
+public enum AGAccumulatorState: Codable {
 	
 	/// not recording an activity
 	case stopped
@@ -65,12 +65,14 @@ public enum AGAccumlatorError: Error {
 	case running
 }
 
+public typealias InstantDataType = [AGDataType: Double]
+
 // Have not decided if this should be a protocol or a class...
-open class AGAccumulator {
+open class AGAccumulator: Codable {
 	
 	private(set) public var state: AGAccumulatorState = .stopped
 	
-	private(set) public var instantData: [AGDataType: Double] = [:]
+	private(set) public var instantData: InstantDataType = [:]
 	
 	/// key value pair of data types that we are acumuating data for.
 	private(set) public var sessionData: AGAccumulatorMultiData = AGAccumulatorMultiData()
@@ -83,6 +85,29 @@ open class AGAccumulator {
 			
 	public init() {
 		
+	}
+	
+	/// Ignore raw data from Encoding/Decoding
+	enum CodingKeys: CodingKey {
+		case state, instantData, sessionData, lapData, startDate
+	}
+
+	public required init(from decoder: Decoder) throws {
+		let container = try decoder.container(keyedBy: CodingKeys.self)
+		state = try container.decode(AGAccumulatorState.self, forKey: .state)
+		instantData = try container.decode(InstantDataType.self, forKey: .instantData)
+		sessionData = try container.decode(AGAccumulatorMultiData.self, forKey: .sessionData)
+		lapData = try container.decode(AGAccumulatorMultiData.self, forKey: .lapData)
+		startDate = try container.decode(Date.self, forKey: .startDate)
+	}
+
+	public func encode(to encoder: Encoder) throws {
+		var container = encoder.container(keyedBy: CodingKeys.self)
+		try container.encode(state, forKey: .state)
+		try container.encode(instantData, forKey: .instantData)
+		try container.encode(sessionData, forKey: .sessionData)
+		try container.encode(lapData, forKey: .lapData)
+		try container.encode(startDate, forKey: .startDate)
 	}
 	
 	// an accumulator gets instant values from somewhere and accumulates them into various things

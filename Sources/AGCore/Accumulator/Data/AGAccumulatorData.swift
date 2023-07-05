@@ -12,7 +12,7 @@ internal func timeInterval(for date: Date, since startDate: Date) -> TimeInterva
 }
 
 /// Accumulation of an individual session or lap
-public struct AGAccumulatorData {
+public struct AGAccumulatorData: Codable {
 	private(set) public var data: [AGDataType: AGAverage] = [:]
 	private(set) public var sport: AGAccumlatorSportType
 	private(set) public var startDate: Date

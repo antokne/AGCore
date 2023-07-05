@@ -7,7 +7,7 @@
 
 import Foundation
 
-internal struct AGAccumulatorPausedData {
+internal struct AGAccumulatorPausedData: Codable {
 	var paused: Bool = false
 	var pausedTimeS: Double = 0
 	

@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum AGDataType: Int {
+public enum AGDataType: Int, Codable {
 	case speed
 	case speedAccuracy
 	case latitude
@@ -255,7 +255,7 @@ public enum AGDataType: Int {
 	}
 }
 
-public struct AGDataTypeValue: Hashable {
+public struct AGDataTypeValue: Hashable, Codable {
 	private(set) public var type: AGDataType
 	private(set) public var value: Double
 	
@@ -265,7 +265,7 @@ public struct AGDataTypeValue: Hashable {
 	}
 }
 
-public struct AGDataTypeArrayValue: Hashable {
+public struct AGDataTypeArrayValue: Hashable, Codable {
 	private(set) public var type: AGDataType
 	private(set) public var values: [Double]
 	
@@ -317,7 +317,7 @@ public struct AGAverageTypeStruct {
 }
 
 /// Struct that you can add data points and it will generate average type values.
-public struct AGAverage {
+public struct AGAverage: Codable {
 	
 	static let NotSet = Double.greatestFiniteMagnitude
 

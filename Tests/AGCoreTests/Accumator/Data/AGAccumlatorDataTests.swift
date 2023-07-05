@@ -154,20 +154,20 @@ final class AGAccumlatorDataTests: XCTestCase {
 		data.add(value: AGDataTypeValue(type: .distance, value: 1), second: 1)
 		XCTAssertFalse(data.data.isEmpty)
 		XCTAssertEqual(data.data.count, 1)
-		XCTAssertEqual(data.value(for: 1)?.value(for: .distance), 1)
+		XCTAssertEqual(data.value(for: 1, type: .distance), 1)
 		
 		// only have one value for each time instance. overwrites.
 		data.add(value: AGDataTypeValue(type: .distance, value: 2), second: 1)
 		XCTAssertEqual(data.data.count, 1)
-		XCTAssertEqual(data.value(for: 1)?.value(for: .distance), 2)
-		var paused = try XCTUnwrap(data.value(for: 1)?.paused)
+		XCTAssertEqual(data.value(for: 1, type: .distance), 2)
+		var paused = try XCTUnwrap(data.paused(second: 1))
 		XCTAssertFalse(paused)
 		
 		// paused
 		data.add(value: AGDataTypeValue(type: .distance, value: 2), second: 2, paused: true)
-		paused = try XCTUnwrap(data.value(for: 1)?.paused)
+		paused = try XCTUnwrap(data.paused(second: 1))
 		XCTAssertFalse(paused)
-		paused = try XCTUnwrap(data.value(for: 2)?.paused)
+		paused = try XCTUnwrap(data.paused(second: 2))
 		XCTAssertTrue(paused)
 		
 		data.clear()
