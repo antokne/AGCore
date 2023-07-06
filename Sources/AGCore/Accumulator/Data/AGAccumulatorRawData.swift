@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import os
 
 public struct AGAccumulatorRawInstantData: Codable {
 	var instant: [AGDataType: Double] = [: ]
@@ -31,6 +32,8 @@ public struct AGAccumulatorRawArrayInstantData: Codable {
 	}
 }
 
+// Outside of struct so it does not muck up the Codable stuff.
+private var logger = Logger(subsystem: "com.antokne.core", category: "AGAccumulatorRawData")
 
 /// A struct that contains all the data we are collecting whether paused or not.
 /// This allows us to recontruct anything using this data.
@@ -45,7 +48,7 @@ public struct AGAccumulatorRawData: Codable {
 	private(set) public var maxSecond: Int = 0
 
 	private(set) public var cachedSecond: Int = 0
-
+	
 	init() {
 		
 	}
@@ -114,7 +117,7 @@ public struct AGAccumulatorRawData: Codable {
 		fileName = folder.appending(path: AGAccumulatorRawData.activityArrayValuesDataFileName)
 		try save(fileName: fileName, valueData: arrayData)
 		
-		updateCacheSecond(second: maxSecond + 1)
+		updateCacheSecond(second: maxSecond )
 	}
 	
 	public func clearCache(in folder: URL) {
@@ -125,17 +128,19 @@ public struct AGAccumulatorRawData: Codable {
 		fileName = folder.appending(path: AGAccumulatorRawData.activityArrayValuesDataFileName)
 		try? FileManager.default.removeItem(at: fileName)
 	}
-	
+		
 	private mutating func save<T: Encodable>(fileName: URL, valueData: [Int: T]) throws {
 		let encoder = JSONEncoder()
 
+		logger.info("Saving cache data for \(fileName.lastPathComponent, privacy: .public)")
+		
 		if cachedSecond == 0 {
-			print("creating new file \(fileName)")
+			logger.info("creating new file \(fileName)")
 			FileManager.default.createFile(atPath: fileName.path(percentEncoded: false), contents: nil)
 		}
 		let fileHandle = try FileHandle(forWritingTo: fileName)
 		try fileHandle.seekToEnd()
-		
+				
 		// write data
 		for second in cachedSecond...maxSecond {
 			
@@ -147,7 +152,6 @@ public struct AGAccumulatorRawData: Codable {
 			
 			let data = try encoder.encode(instantValueData)
 			let encodedString = "\(second)" + AGAccumulatorRawData.secondDataSeparator + (String(data: data, encoding: .utf8) ?? "") + "\n"
-			print(encodedString)
 			
 			if let theData = encodedString.data(using: .utf8) {
 				fileHandle.write(theData)
@@ -156,6 +160,8 @@ public struct AGAccumulatorRawData: Codable {
 		}
 		
 		try fileHandle.close()
+		let seconds = maxSecond - cachedSecond
+		logger.info("Saving cache data completed. cached \(seconds, privacy: .public) seconds")
 	}
 	
 	public static func load(from folder: URL) async throws -> AGAccumulatorRawData {
@@ -173,6 +179,8 @@ public struct AGAccumulatorRawData: Codable {
 	
 	public mutating func load<T: Decodable>(fileName: URL, type: T.Type) async throws -> [Int: T] {
 		
+		logger.info("Loading cache data for \(fileName.lastPathComponent, privacy: .public)")
+
 		let decoder = JSONDecoder()
 		
 		var valueData: [Int: T] = [:]
@@ -195,6 +203,8 @@ public struct AGAccumulatorRawData: Codable {
 			valueData[second] = instantData
 			self.updateSecond(second: second)
 		}
+		logger.info("Loading cache data completed")
+
 		return valueData
 	}
 }
