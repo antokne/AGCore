@@ -110,6 +110,14 @@ open class AGAccumulator: Codable {
 		try container.encode(startDate, forKey: .startDate)
 	}
 	
+	public func cacheRawData(to folder: URL) throws {
+		try rawData.cache(to: folder)
+	}
+	
+	public func clearCache(in folder: URL) {
+		rawData.clearCache(in: folder)
+	}
+		
 	// an accumulator gets instant values from somewhere and accumulates them into various things
 
 	public func add(instant value: Double, type: AGDataType) {

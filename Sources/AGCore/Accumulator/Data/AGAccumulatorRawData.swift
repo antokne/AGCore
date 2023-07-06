@@ -117,6 +117,15 @@ public struct AGAccumulatorRawData: Codable {
 		updateCacheSecond(second: maxSecond + 1)
 	}
 	
+	public func clearCache(in folder: URL) {
+		
+		var fileName = folder.appending(path: AGAccumulatorRawData.activityInstantValueDataFileName)
+		try? FileManager.default.removeItem(at: fileName)
+		
+		fileName = folder.appending(path: AGAccumulatorRawData.activityArrayValuesDataFileName)
+		try? FileManager.default.removeItem(at: fileName)
+	}
+	
 	private mutating func save<T: Encodable>(fileName: URL, valueData: [Int: T]) throws {
 		let encoder = JSONEncoder()
 
