@@ -16,14 +16,14 @@ public class AGLogger {
 	
 	private var name: String
 	private var subSystemPrefex: String
-	private var posistionSince: TimeInterval
+	private var positionSince: TimeInterval
 	
 	let dateFormatter = DateFormatter()
-
+	
 	public init(name: String, subSystemPrefix: String, duration: TimeInterval) {
 		self.name = name
 		self.subSystemPrefex = subSystemPrefix
-		self.posistionSince = duration
+		self.positionSince = duration
 		dateFormatter.dateFormat = "yyyy-MM-dd-HH:mm:ss"
 	}
 	
@@ -36,7 +36,7 @@ public class AGLogger {
 	
 	func getLogEntries() throws -> [OSLogEntryLog] {
 		let logStore = try OSLogStore(scope: .currentProcessIdentifier)
-		let dateFrom = Date().addingTimeInterval(-posistionSince)
+		let dateFrom = Date().addingTimeInterval(-positionSince)
 		let position = logStore.position(date: dateFrom)
 		let allEntries = try logStore.getEntries(at: position)
 		let osLogEntryLogObjects = allEntries.compactMap { $0 as? OSLogEntryLog }
