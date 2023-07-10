@@ -91,7 +91,9 @@ open class AGAccumulator: Codable {
 	enum CodingKeys: CodingKey {
 		case state, instantData, sessionData, lapData, startDate
 	}
-
+	
+	/// Decoder init
+	/// - Parameter decoder: decoder used
 	public required init(from decoder: Decoder) throws {
 		let container = try decoder.container(keyedBy: CodingKeys.self)
 		state = try container.decode(AGAccumulatorState.self, forKey: .state)
@@ -100,7 +102,9 @@ open class AGAccumulator: Codable {
 		lapData = try container.decode(AGAccumulatorMultiData.self, forKey: .lapData)
 		startDate = try container.decode(Date.self, forKey: .startDate)
 	}
-
+	
+	/// Encoder
+	/// - Parameter encoder: encoder used
 	public func encode(to encoder: Encoder) throws {
 		var container = encoder.container(keyedBy: CodingKeys.self)
 		try container.encode(state, forKey: .state)
@@ -110,16 +114,31 @@ open class AGAccumulator: Codable {
 		try container.encode(startDate, forKey: .startDate)
 	}
 	
+	/// Save encoded raw data to files in folder
+	/// - Parameter folder: the folder to save the cache files
 	public func cacheRawData(to folder: URL) throws {
 		try rawData.cache(to: folder)
 	}
 	
+	/// Deletes the cache files
+	/// - Parameter folder: the folder that the cache files are located
 	public func clearCache(in folder: URL) {
 		rawData.clearCache(in: folder)
 	}
+	
+	/// Load cache data from folder
+	/// - Parameter folder: the folder that the cache files are located
+	public func loadRawData(from folder: URL) async throws {
+		rawData = try await AGAccumulatorRawData.load(from: folder)
+	}
 		
 	// an accumulator gets instant values from somewhere and accumulates them into various things
-
+	
+	/// Add a instant value to the instant data, emerpheral.
+	/// Although these are never cleared they are only really valid for a moment in time.
+	/// - Parameters:
+	///   - value: the value of the data type
+	///   - type: data type to store.
 	public func add(instant value: Double, type: AGDataType) {
 		instantData[type] = value
 	}
@@ -147,6 +166,10 @@ open class AGAccumulator: Codable {
 		rawData.add(value: AGDataTypeValue(type: type, value: value), second: seconds, paused: state.paused())
 	}
 	
+	/// Accumulate this data type with an array value
+	/// - Parameters:
+	///   - date: timestamp of data
+	///   - arrayValue: an array of values.
 	public func accumulate(date: Date, arrayValue: AGDataTypeArrayValue) throws {
 		
 		guard let startDate else {
@@ -157,6 +180,10 @@ open class AGAccumulator: Codable {
 		rawData.add(arrayValue: arrayValue, second: seconds, paused: state.paused())
 	}
 	
+	/// An even has occured process the data accordingly
+	/// - Parameters:
+	///   - event: the event tupe
+	///   - date: the timestamp of the event.
 	public func event(event: AGAccumulatorEvent, at date: Date) {
 
 		switch event {
@@ -179,6 +206,8 @@ open class AGAccumulator: Codable {
 		}
 	}
 	
+	/// Start event
+	/// - Parameter startDate: timestamp of the start event
 	private func start(startDate: Date) {
 		guard state == .stopped else {
 			return
@@ -189,6 +218,8 @@ open class AGAccumulator: Codable {
 		state = .running
 	}
 	
+	/// A Pause event occured
+	/// - Parameter date: timestamp of pause event
 	private func pause(date: Date) {
 		
 		guard state.isRunning() else {
@@ -199,6 +230,8 @@ open class AGAccumulator: Codable {
 		}
 	}
 	
+	/// Resume event occured
+	/// - Parameter date: timestamp of the resume event
 	private func resume(date: Date) {
 		guard state.isRunning() else {
 			return
@@ -208,12 +241,14 @@ open class AGAccumulator: Codable {
 		}
 	}
 	
+	/// A Stop event occurred.
 	private func stop() {
 		if state.isRunning() {
 			state = .stopped
 		}
 	}
 	
+	/// Reset data request
 	private func reset() {
 		if state == .stopped {
 			sessionData = AGAccumulatorMultiData()
@@ -223,6 +258,8 @@ open class AGAccumulator: Codable {
 		}
 	}
 	
+	/// Polling event occurred.
+	/// - Parameter date: timestamp of the poll event.
 	private func poll(date: Date) {
 		if state.isRunning() {
 			sessionData.updateWorkoutTime(date: date)
