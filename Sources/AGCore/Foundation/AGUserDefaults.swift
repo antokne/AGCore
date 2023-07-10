@@ -113,3 +113,23 @@ public struct AGUserDefaultDoubleValue {
 		}
 	}
 }
+
+
+public struct AGUserDefaultIntValue {
+	var keyName: String
+	
+	public init(keyName: String, defaultValue: Int) {
+		self.keyName = keyName
+		UserDefaults.standard.register(defaults: [keyName: defaultValue])
+	}
+	
+	public var intValue: Int {
+		get {
+			let value = UserDefaults.standard.integer(forKey: keyName)
+			return value
+		}
+		set {
+			UserDefaults.standard.set(newValue, forKey: keyName)
+		}
+	}
+}
