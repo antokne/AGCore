@@ -125,9 +125,9 @@ public enum AGDataType: Int, Codable {
 			return UnitSpeed.metersPerSecond
 		case .radarTargetCount:
 			return AGUnitNone.none
-        case .radarStatus:
-            return AGUnitNone.none
-        }
+		case .radarStatus:
+			return AGUnitNone.none
+		}
 	}
 	
 	
@@ -182,9 +182,9 @@ public enum AGDataType: Int, Codable {
 			return metric ? UnitSpeed.kilometersPerHour : UnitSpeed.milesPerHour
 		case .radarTargetCount:
 			return AGUnitNone.none
-        case .radarStatus:
-            return AGUnitNone.none
-        }
+		case .radarStatus:
+			return AGUnitNone.none
+		}
 	}
 	
 	var precision: Int {
@@ -237,9 +237,9 @@ public enum AGDataType: Int, Codable {
 			return 0
 		case .radarTargetCount:
 			return 0
-        case .radarStatus:
-            return 0
-        }
+		case .radarStatus:
+			return 0
+		}
 	}
 	
 	public func format(value: Double) -> String {
