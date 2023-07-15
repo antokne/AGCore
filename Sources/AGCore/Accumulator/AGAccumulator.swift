@@ -65,7 +65,7 @@ public enum AGAccumlatorError: Error {
 	case running
 }
 
-public typealias InstantDataType = [AGDataType: Double]
+public typealias InstantDataType = [AGDataType: AGInstantDataType]
 
 // Have not decided if this should be a protocol or a class...
 open class AGAccumulator: Codable {
@@ -140,7 +140,7 @@ open class AGAccumulator: Codable {
 	///   - value: the value of the data type
 	///   - type: data type to store.
 	public func add(instant value: Double, type: AGDataType) {
-		instantData[type] = value
+		instantData[type] = AGInstantDataType(value: value)
 	}
 	
 	/// Accumulate this data type, starttime interval is set to the first time interval accumulated.
