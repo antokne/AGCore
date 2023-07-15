@@ -75,27 +75,18 @@ struct SimpleHTTPLoginDetailView: View {
 					focusedField = nil
 				} label: {
 					Text("Log In")
-						.font(.title2)
-						.bold()
-						.foregroundColor(.white)
 						.frame(maxWidth: .infinity) // how to make a button fill all the space available horizontaly
 				}
-				.frame(height: 50)
-				.background(
-					viewModel.isSignInButtonDisabled ? // how to add a gradient to a button in SwiftUI if the button is disabled
-					LinearGradient(colors: [Color(white: 0.75)], startPoint: .topLeading, endPoint: .bottomTrailing) :
-						LinearGradient(colors: [.accentColor, .accentColor], startPoint: .topLeading, endPoint: .bottomTrailing)
-				)
-				.cornerRadius(20)
+				.buttonStyle(.borderedProminent)
 				.disabled(viewModel.isSignInButtonDisabled) // how to disable while some condition is applied
 				
 				Button {
 					presentationMode.wrappedValue.dismiss()
 				} label: {
 					Text("Cancel")
-						.font(.title3)
 						.frame(maxWidth: .infinity)
 				}
+				.buttonStyle(.borderless)
 			}
 			.padding()
 		}
