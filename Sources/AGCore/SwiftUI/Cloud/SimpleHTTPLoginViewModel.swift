@@ -30,7 +30,7 @@ public class SimpleHTTPLoginViewModel: ObservableObject, Identifiable{
 	
 	var preview: Bool
 	
-	@Published var isAuthenticated: Bool = false
+	@Published public private(set) var isAuthenticated: Bool = false
 	
 	var auth: SimpleHTTPAuth? {
 		SimpleHTTPAuth(service: siteName)
