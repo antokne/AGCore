@@ -20,6 +20,8 @@ public enum AGPackage: Identifiable, CaseIterable {
 	case asyncBluetooth
 	case fitDataProtocol
 	case alertToast
+	case dateBuilder
+	case niceNotifications
 	
 	public var id: AGPackage {
 		self
@@ -52,6 +54,10 @@ public enum AGPackage: Identifiable, CaseIterable {
 			return "FitDataProtocol"
 		case .alertToast:
 			return "AlertToast"
+		case .dateBuilder:
+			return "DateBuilder"
+		case .niceNotifications:
+			return "NiceNotifications"
 		}
 	}
 	
@@ -80,7 +86,11 @@ public enum AGPackage: Identifiable, CaseIterable {
 		case .fitDataProtocol:
 			return URL(string: "https://github.com/FitnessKit/FitDataProtocol")
 		case .alertToast:
-			return URL(string: "https://github.com/elai950/AlertToast/")
+			return URL(string: "https://github.com/elai950/AlertToast")
+		case .dateBuilder:
+			return URL(string: "https://github.com/dreymonde/DateBuilder")
+		case .niceNotifications:
+			return URL(string: "https://github.com/dreymonde/NiceNotifications")
 		}
 	}
 }
