@@ -12,6 +12,17 @@ public protocol AGFeatureRuleProtocol {
 	func enabled(value: Int) -> Bool
 }
 
+/// A simple rule always disabled
+public class AGFeatureRuleDisabled {
+	public init() {}
+}
+
+extension AGFeatureRuleDisabled: AGFeatureRuleProtocol {
+	public func enabled(value: Int = 0) -> Bool {
+		false
+	}
+}
+
 /// A simple rule enable if value below limit else disable.
 public class AGFeatureRuleLimitCount {
 	public private(set) var limitValue: Int
