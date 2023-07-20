@@ -28,6 +28,12 @@ public class SimpleHTTPLoginViewModel: ObservableObject, Identifiable{
 	
 	@Published var showToast = false
 	
+	@Published var automaticUpload = true {
+		didSet {
+			automaticUploadChanged()
+		}
+	}
+	
 	var preview: Bool
 	
 	@Published public private(set) var isAuthenticated: Bool = false
@@ -55,6 +61,7 @@ public class SimpleHTTPLoginViewModel: ObservableObject, Identifiable{
 		self.simpleHTTPService = service
 		self.preview = preview
 		isAuthenticated = auth != nil
+		automaticUpload = auth?.automaticUpload ?? true
 	}
 	
 	public func signIn() {
@@ -96,5 +103,13 @@ public class SimpleHTTPLoginViewModel: ObservableObject, Identifiable{
 		auth.token = result
 		auth.save()
 		isAuthenticated = true
+	}
+	
+	private func automaticUploadChanged() {
+		guard var auth = self.auth else {
+			return
+		}
+		auth.automaticUpload = automaticUpload
+		auth.save()
 	}
 }

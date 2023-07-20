@@ -14,6 +14,10 @@ public protocol AGCloudServiceSiteProtocol: Codable {
 	var email: String { get }
 	var password: String { get }
 	var token: String? { get set }
+	
+	///Needs to be option so decoding does not fail
+	var automaticUpload: Bool? { get set }
+	
 	init?(service: String)
 }
 
@@ -23,6 +27,10 @@ public struct SimpleHTTPAuth: AGCloudServiceSiteProtocol {
 	public let email: String
 	public let password: String
 	public var token: String?
+	
+	/// Options so that works with previsou versions without crashing.
+	public var automaticUpload: Bool? = true
+	
 	static let simpleAuthKey = "simepleAuth" // !!!
 	
 	init(service: String, email: String, password: String) {

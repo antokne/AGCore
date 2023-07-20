@@ -10,16 +10,28 @@ import SwiftUI
 public struct SimpletHHTPAuthRowView: View {
 	@ObservedObject var viewModel: SimpleHTTPLoginViewModel
 	
-	public init(viewModel: SimpleHTTPLoginViewModel) {
+	@State private var autoUpload = false
+
+	var autoUploadFeatureEnabled: Bool
+
+	public init(viewModel: SimpleHTTPLoginViewModel, autoUploadFeatureEnabled: Bool = true) {
 		self.viewModel = viewModel
+		self.autoUploadFeatureEnabled = autoUploadFeatureEnabled
 	}
 	
 	public var body: some View {
 		Label {
-			Text(viewModel.siteName)
-			Spacer()
-			if viewModel.isAuthenticated {
-				Image(systemName: "checkmark.icloud")
+			VStack {
+				HStack {
+					Text(viewModel.siteName)
+					Spacer()
+					if viewModel.isAuthenticated {
+						Image(systemName: "checkmark.icloud")
+					}
+				}
+				if viewModel.isAuthenticated, autoUploadFeatureEnabled {
+					Toggle(isOn: $viewModel.automaticUpload, label: { Text("Auto upload") })
+				}
 			}
 		} icon: {
 			if let image = viewModel.siteImageName {
@@ -38,6 +50,8 @@ struct SimpletHHTPAuthRowView_Previews: PreviewProvider {
 													service: SimpleHTTPService.myBikeTrafficService)
 
 	static var previews: some View {
-		SimpletHHTPAuthRowView(viewModel: viewModel)
+		List {
+			SimpletHHTPAuthRowView(viewModel: viewModel, autoUploadFeatureEnabled: true)
+		}
 	}
 }
