@@ -13,7 +13,6 @@ enum SimpleHTTPLoginField: Hashable {
     case password
 }
 
-@MainActor
 public class SimpleHTTPLoginViewModel: ObservableObject, Identifiable{
 	
 	@Published var sucess: Bool = true
