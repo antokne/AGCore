@@ -16,6 +16,8 @@ public struct AGAccumulatorData: Codable {
 	private(set) public var data: [AGDataType: AGAverage] = [:]
 	private(set) public var sport: AGAccumlatorSportType
 	private(set) public var startDate: Date
+	
+	/// duration of lap excluding pauses.
 	private(set) public var durationS: TimeInterval = 0
 
 	/// Paused data for this session or lap.
@@ -24,7 +26,8 @@ public struct AGAccumulatorData: Codable {
 	public var pausedTimeS: TimeInterval {
 		pausedData.pausedTimeS
 	}
-	
+		
+	/// Total time of lap durationS + PauseTimeS
 	public var totalTimeS: TimeInterval {
 		durationS + pausedTimeS
 	}
