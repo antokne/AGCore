@@ -25,7 +25,7 @@ public struct AGMailAttachment {
 public struct AGMailView: UIViewControllerRepresentable {
 	
 	@Environment(\.presentationMode) var presentation
-	@Binding var result: Result<MFMailComposeResult, Error>?
+	@Binding var result: MFMailComposeResult?
 	
 	private var mailTo: String
 	private var subject: String
@@ -33,7 +33,7 @@ public struct AGMailView: UIViewControllerRepresentable {
 
 	private var attachments: [AGMailAttachment] = []
 
-	public init(result: Binding<Result<MFMailComposeResult, Error>?>,
+	public init(result: Binding<MFMailComposeResult?>,
 				mailTo: String,
 				subject: String,
 				body: String? = nil,
@@ -48,10 +48,10 @@ public struct AGMailView: UIViewControllerRepresentable {
 	public class Coordinator: NSObject, MFMailComposeViewControllerDelegate {
 		
 		@Binding var presentation: PresentationMode
-		@Binding var result: Result<MFMailComposeResult, Error>?
+		@Binding var result: MFMailComposeResult?
 		
 		public init(presentation: Binding<PresentationMode>,
-			 result: Binding<Result<MFMailComposeResult, Error>?>) {
+			 result: Binding<MFMailComposeResult?>) {
 			_presentation = presentation
 			_result = result
 		}
@@ -63,10 +63,10 @@ public struct AGMailView: UIViewControllerRepresentable {
 				$presentation.wrappedValue.dismiss()
 			}
 			guard error == nil else {
-				self.result = .failure(error!)
+				self.result = .failed
 				return
 			}
-			self.result = .success(result)
+			self.result = result
 		}
 	}
 	
