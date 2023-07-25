@@ -32,6 +32,7 @@ public struct AGFeatureView: View {
 							.cornerRadius(5)
 						Text(feature.name)
 							.font(.title2)
+						Spacer()
 					}
 					Text(feature.description)
 						.foregroundColor(.secondary)
