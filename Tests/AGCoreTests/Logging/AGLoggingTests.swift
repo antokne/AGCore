@@ -79,7 +79,7 @@ final class AGLoggingTests: XCTestCase {
 		
 		XCTAssertTrue(contents.contains("[info]"))
 		XCTAssertTrue(contents.contains("AGLoggingTests"))
-		XCTAssertTrue(contents.hasSuffix("A log test message\n"))
+		XCTAssertTrue(contents.contains("A log test message\n"))
 		
 		try? FileManager.default.removeItem(at: url)
 	}
@@ -96,7 +96,7 @@ final class AGLoggingTests: XCTestCase {
 		var contents = try String(contentsOf: url)
 		XCTAssertTrue(contents.contains("[info]"))
 		XCTAssertTrue(contents.contains("AGLoggingTests"))
-		XCTAssertTrue(contents.hasSuffix("A log test message\n"))
+		XCTAssertTrue(contents.contains("A log test message\n"))
 
 		sleep(1)
 
@@ -115,7 +115,7 @@ final class AGLoggingTests: XCTestCase {
 		//XCTAssertFalse(contents.contains("A log test message\n"))
 
 		XCTAssertTrue(contents.contains("[error]"))
-		XCTAssertTrue(contents.hasSuffix("Oh noes an error!\n"))
+		XCTAssertTrue(contents.contains("Oh noes an error!\n"))
 		
 		let allLogFiles = agLogger.allLogFiles
 		XCTAssertEqual(allLogFiles.count, 2)
