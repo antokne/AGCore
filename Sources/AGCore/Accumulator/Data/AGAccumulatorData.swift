@@ -55,7 +55,8 @@ public struct AGAccumulatorData: Codable {
 			return
 		}
 		
-		let seconds = timeInterval(for: date, since: startDate)
+		// Subtract any paused time from this.
+		let seconds = timeInterval(for: date, since: startDate) - pausedTimeS
 		
 		data[type]?.add(x: seconds, y: value)
 		
@@ -65,7 +66,7 @@ public struct AGAccumulatorData: Codable {
 	}
 	
 	private mutating func updateDuration(seconds: TimeInterval) {
-		durationS = seconds - pausedData.pausedTimeS
+		durationS = seconds
 		if data[.timestamp] == nil {
 			data[.timestamp] = AGAverage(type: .timestamp)
 			data[.workoutTime] = AGAverage(type: .workoutTime)
