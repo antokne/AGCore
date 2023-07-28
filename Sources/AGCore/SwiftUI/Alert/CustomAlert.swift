@@ -77,7 +77,9 @@ public struct CustomAlert: View {
 			Text(title)
 				.font(.title)
 				.foregroundColor(.black)
+#if os(iOS)
 				.lineSpacing(24 - UIFont.systemFont(ofSize: 18, weight: .bold).lineHeight)
+#endif
 				.multilineTextAlignment(.leading)
 				.frame(maxWidth: .infinity, alignment: .leading)
 		}
@@ -88,7 +90,9 @@ public struct CustomAlert: View {
 		if !message.isEmpty {
 			Text(message)
 				.foregroundColor(title.isEmpty ? .black : .gray)
+#if os(iOS)
 				.lineSpacing(24 - UIFont.systemFont(ofSize: title.isEmpty ? 18 : 16).lineHeight)
+#endif
 				.multilineTextAlignment(.leading)
 				.frame(maxWidth: .infinity, alignment: .leading)
 		}

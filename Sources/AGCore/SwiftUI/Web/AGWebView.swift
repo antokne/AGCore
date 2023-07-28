@@ -8,7 +8,16 @@
 import SwiftUI
 import WebKit
 
-public struct AGWebView: UIViewRepresentable {
+#if os(macOS)
+import AppKit
+public typealias AGViewRepresentable = NSViewRepresentable
+#endif
+
+#if os(iOS)
+public typealias AGViewRepresentable = UIViewRepresentable
+#endif
+
+public struct AGWebView: AGViewRepresentable {
 
 	let url: URL
 	
@@ -16,6 +25,7 @@ public struct AGWebView: UIViewRepresentable {
 		self.url = url
 	}
 
+#if os(iOS)
 	public func makeUIView(context: Context) -> WKWebView  {
 		let wkwebView = WKWebView()
 		let request = URLRequest(url: url)
@@ -25,6 +35,23 @@ public struct AGWebView: UIViewRepresentable {
 	
 	public func updateUIView(_ uiView: WKWebView, context: Context) {
 	}
+#endif
+	
+#if os(macOS)
+
+	public func makeNSView(context: Self.Context) -> WKWebView {
+		let wkwebView = WKWebView()
+		let request = URLRequest(url: url)
+		wkwebView.load(request)
+		return wkwebView
+	}
+	
+	public func updateNSView(_ nsView: WKWebView, context: Self.Context) {
+		
+	}
+#endif
+
+	
 }
 
 struct AGWebView_Previews: PreviewProvider {
