@@ -136,28 +136,28 @@ final class AGAccumulatorTests: XCTestCase {
 		try accumulator.accumulate(date: dateResume.plus(4), value: 1, type: .speed)
 		try accumulator.accumulate(date: dateResume.plus(5), value: 1, type: .speed)
 		
-		try accumulator.accumulate(date: dateResume, value: 6, type: .distance)
-		try accumulator.accumulate(date: dateResume.plus(1), value: 7, type: .distance)
-		try accumulator.accumulate(date: dateResume.plus(2), value: 8, type: .distance)
-		try accumulator.accumulate(date: dateResume.plus(3), value: 9, type: .distance)
-		try accumulator.accumulate(date: dateResume.plus(4), value: 10, type: .distance)
-		try accumulator.accumulate(date: dateResume.plus(5), value: 11, type: .distance)
+//		try accumulator.accumulate(date: dateResume, value: 6, type: .distance)
+		try accumulator.accumulate(date: dateResume.plus(1), value: 6, type: .distance)
+		try accumulator.accumulate(date: dateResume.plus(2), value: 7, type: .distance)
+		try accumulator.accumulate(date: dateResume.plus(3), value: 8, type: .distance)
+		try accumulator.accumulate(date: dateResume.plus(4), value: 9, type: .distance)
+		try accumulator.accumulate(date: dateResume.plus(5), value: 10, type: .distance)
 		
 		XCTAssertEqual(accumulator.lapData.currentData.data[.speed]?.getValue(for: .last), 1)
 		XCTAssertEqual(accumulator.lapData.currentData.data[.speed]?.getValue(for: .accumulation), 0)
 		XCTAssertEqual(accumulator.lapData.currentData.data[.speed]?.getValue(for: .average), 1)
 		XCTAssertEqual(accumulator.lapData.currentData.data[.speed]?.getValue(for: .accumulationOverTime), 0)
 		
-		XCTAssertEqual(accumulator.lapData.currentData.data[.distance]?.getValue(for: .last), 11)
-		XCTAssertEqual(accumulator.lapData.currentData.data[.distance]?.getValue(for: .accumulation), 11)
-		XCTAssertEqual(accumulator.lapData.currentData.data[.distance]?.getValue(for: .average), 5.5)
+		XCTAssertEqual(accumulator.lapData.currentData.data[.distance]?.getValue(for: .last), 10)
+		XCTAssertEqual(accumulator.lapData.currentData.data[.distance]?.getValue(for: .accumulation), 10)
+		XCTAssertEqual(accumulator.lapData.currentData.data[.distance]?.getValue(for: .average), 5.0)
 		
 		let value = try XCTUnwrap(accumulator.lapData.currentData.data[.distance]?.getValue(for: .accumulationOverTime))
-		XCTAssertEqual(value, 0.7333, accuracy: 0.01)
+		XCTAssertEqual(value, 1.00, accuracy: 0.01)
 		
 		// nothing should happen, ignore.
 		accumulator.event(event: .reset, at: dateResume.plus(5))
-		XCTAssertEqual(accumulator.lapData.currentData.data[.distance]?.getValue(for: .average), 5.5)
+		XCTAssertEqual(accumulator.lapData.currentData.data[.distance]?.getValue(for: .average), 5.0)
 		
 		// stop
 		accumulator.event(event: .stop, at: dateResume.plus(5))

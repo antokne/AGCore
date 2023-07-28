@@ -110,7 +110,7 @@ final class AGAccumlatorDataTests: XCTestCase {
 
 		XCTAssertEqual(accumData.data[.startTime]?.getValue(for: .last), date.timeIntervalSinceReferenceDate)
 		
-		// worktime is total minue paused time.
+		// worktime is total minus paused time.
 		XCTAssertEqual(accumData.data[.workoutTime]?.getValue(for: .last), 10)
 	}
 	
