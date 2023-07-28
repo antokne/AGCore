@@ -73,10 +73,12 @@ public class AGLogger {
 			print("position = \(postion)")
 		}
 		
+		log.info("Generating logs from \(postion)")
 		print("getting log enteries for position = \(postion)")
 		let entries = try getLogEntries(positionSince: postion)
 		let url = generateLogFileURL()
 		try writeToFile(entries: entries, to: url)
+		log.info("Generating logs completed")
 		return url
 	}
 	
