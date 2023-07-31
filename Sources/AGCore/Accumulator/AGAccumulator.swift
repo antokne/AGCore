@@ -221,8 +221,7 @@ open class AGAccumulator: Codable {
 	/// A Pause event occured
 	/// - Parameter date: timestamp of pause event
 	private func pause(date: Date) {
-		
-		guard state.isRunning() else {
+		guard state == .running else {
 			return
 		}
 		if sessionData.pause(date: date) && lapData.pause(date: date) {
