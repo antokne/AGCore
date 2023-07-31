@@ -332,7 +332,8 @@ public struct AGAverage: Codable {
 	private(set) public var sum: Double = 0
 	private(set) public var count: Int = 0
 	
-	private(set) public var type: AGDataType
+	/// Make this private, use getDataType(for:) instead.
+	private var type: AGDataType
 	
 	public init(type: AGDataType) {
 		self.type = type
@@ -449,6 +450,21 @@ public struct AGAverage: Codable {
 		case .first:
 			return left.y;
 		}
+	}
+	
+	/// Some average types use a different unit to their base type.
+	/// - Parameter avgType: the average type to check
+	/// - Returns: return the override datatype or return the default.
+	public func getDataType(for avgType: AGAverageType) -> AGDataType {
+		switch type {
+		case .distance:
+			if avgType == .accumulationOverTime {
+				return .speed
+			}
+		default:
+			break
+		}
+		return type
 	}
 	
 	public func stringValue() -> String {
