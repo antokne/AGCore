@@ -321,13 +321,10 @@ public struct AGAverage: Codable {
 	
 	static let NotSet = Double.greatestFiniteMagnitude
 
-	private var left: CGPoint
-	private var right: CGPoint
+	private var first: CGPoint
+	private var last: CGPoint
 	private var max: CGPoint
 	private var min: CGPoint
-	
-	private var last: CGPoint
-	private var first: CGPoint
 	
 	private(set) public var sum: Double = 0
 	private(set) public var count: Int = 0
@@ -337,12 +334,10 @@ public struct AGAverage: Codable {
 	
 	public init(type: AGDataType) {
 		self.type = type
-		left = AGAverage.getNotSetPpoint()
-		right = AGAverage.getNotSetPpoint()
+		first = AGAverage.getNotSetPpoint()
+		last = AGAverage.getNotSetPpoint()
 		max = AGAverage.getNotSetPpoint()
 		min = AGAverage.getNotSetPpoint()
-		last = AGAverage.getNotSetPpoint()
-		first = AGAverage.getNotSetPpoint()
 	}
 	
 	private static func getNotSetPpoint() -> CGPoint {
@@ -359,14 +354,14 @@ public struct AGAverage: Codable {
 	///   - y: y value
 	public mutating func add(x: Double, y: Double) {
 		
-		if self.left.x == AGAverage.NotSet || x < self.left.x
+		if self.first.x == AGAverage.NotSet || x < self.first.x
 		{
-			self.left = CGPoint(x: x, y: y)
+			self.first = CGPoint(x: x, y: y)
 		}
 		
-		if self.right.x == AGAverage.NotSet || x > self.right.x
+		if self.last.x == AGAverage.NotSet || x > self.last.x
 		{
-			self.right = CGPoint(x: x, y: y)
+			self.last = CGPoint(x: x, y: y)
 		}
 		
 		if self.min.y == AGAverage.NotSet || y < self.min.y
@@ -378,13 +373,6 @@ public struct AGAverage: Codable {
 		{
 			self.max = CGPoint(x: x, y: y)
 		}
-		
-		if self.first.y == AGAverage.NotSet
-		{
-			self.first = CGPoint(x: x, y: y)
-		}
-		
-		self.last = CGPoint(x: x, y: y)
 		
 		self.sum += y
 		self.count += 1
@@ -400,16 +388,16 @@ public struct AGAverage: Codable {
 	
 	/// add a value for actual x value delta y
 	/// - Parameters:
-	///   - x: <#x description#>
-	///   - dy: <#dy description#>
+	///   - x: x value
+	///   - dy: delta y
 	mutating func add(x: Double, dy: Double) {
 		add(x: x, y: self.last.y + dy)
 	}
 	
 	/// add a delta x value actual y
 	/// - Parameters:
-	///   - dx: <#dx description#>
-	///   - y: <#y description#>
+	///   - dx: delta x
+	///   - y: y value
 	mutating func add(dx: Double, y: Double) {
 		add(x: self.last.x + dx, y: y)
 	}
@@ -422,10 +410,10 @@ public struct AGAverage: Codable {
 	}
 	
 	private func getAccummulatedAverage() -> Double? {
-		let deltaSec = (self.right.x - self.left.x);
+		let deltaSec = (self.last.x - self.first.x);
 		if (deltaSec > 0)
 		{
-			let accum = self.right.y - self.left.y;
+			let accum = self.last.y - self.first.y;
 			return accum / deltaSec;
 		}
 		return nil
@@ -442,13 +430,13 @@ public struct AGAverage: Codable {
 		case .range:
 			return max.y - min.y
 		case .accumulation:
-			return right.y - left.y
+			return last.y - first.y
 		case .accumulationOverTime:
 			return getAccummulatedAverage()
 		case .last:
-			return right.y != AGAverage.NotSet ? right.y : nil
+			return last.y != AGAverage.NotSet ? last.y : nil
 		case .first:
-			return left.y;
+			return first.y;
 		}
 	}
 	
