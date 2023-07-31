@@ -55,7 +55,7 @@ public enum AGAccumulatorState: Codable {
 		self == .running || self == .paused
 	}
 	
-	func paused() -> Bool {
+	func isPaused() -> Bool {
 		self == .paused
 	}
 }
@@ -163,7 +163,7 @@ open class AGAccumulator: Codable {
 		
 		// Add to raw data, this enables us to recreate whatever we want.
 		let seconds = Int(timeInterval(for: date, since: startDate))
-		rawData.add(value: AGDataTypeValue(type: type, value: value), second: seconds, paused: state.paused())
+		rawData.add(value: AGDataTypeValue(type: type, value: value), second: seconds, paused: state.isPaused())
 	}
 	
 	/// Accumulate this data type with an array value
@@ -177,7 +177,7 @@ open class AGAccumulator: Codable {
 		}
 		
 		let seconds = Int(timeInterval(for: date, since: startDate))
-		rawData.add(arrayValue: arrayValue, second: seconds, paused: state.paused())
+		rawData.add(arrayValue: arrayValue, second: seconds, paused: state.isPaused())
 	}
 	
 	/// An even has occured process the data accordingly
@@ -233,7 +233,7 @@ open class AGAccumulator: Codable {
 	/// Resume event occured
 	/// - Parameter date: timestamp of the resume event
 	private func resume(date: Date) {
-		guard state.isRunning() else {
+		guard state.isPaused() else {
 			return
 		}
 		if sessionData.resume(date: date) && lapData.resume(date: date) {

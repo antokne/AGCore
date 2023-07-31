@@ -123,12 +123,14 @@ final class AGAccumulatorTests: XCTestCase {
 		// pause for 5 seconds
 		let datePause = date.plus(5)
 		accumulator.event(event: .pause, at: datePause)
+		XCTAssertEqual(accumulator.state, .paused)
 
 		// resume for 5 seconds
 		let dateResume = date.plus(10)
 
 		accumulator.event(event: .resume, at: dateResume)
-		
+		XCTAssertEqual(accumulator.state, .running)
+
 		try accumulator.accumulate(date: dateResume, value: 1, type: .speed)
 		try accumulator.accumulate(date: dateResume.plus(1), value: 1, type: .speed)
 		try accumulator.accumulate(date: dateResume.plus(2), value: 1, type: .speed)
