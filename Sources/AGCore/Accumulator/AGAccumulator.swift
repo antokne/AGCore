@@ -253,6 +253,7 @@ open class AGAccumulator: Codable {
 			sessionData = AGAccumulatorMultiData()
 			lapData = AGAccumulatorMultiData()
 			rawData = AGAccumulatorRawData()
+			instantData = [: ]
 			startDate = nil
 		}
 	}
