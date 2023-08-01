@@ -9,55 +9,55 @@
 import Foundation
 
 public enum AGDataType: Int, Codable {
-	case speed
-	case speedAccuracy
-	case latitude
-	case longitude
-	case horizontalAccuracy
-	case power
-	case cadence
-	case hr
-	case distance
-	case altitude
-	case verticalAccuracy
-	case ascent
-	case descent
-	case grade
-	case calories
-	case temperature
+	case speed = 0
+	case speedAccuracy = 1
+	case latitude = 2
+	case longitude = 3
+	case horizontalAccuracy = 4
+	case power = 5
+	case cadence = 6
+	case hr = 7
+	case distance = 8
+	case altitude = 9
+	case verticalAccuracy = 10
+	case ascent = 11
+	case descent = 12
+	case grade = 13
+	case calories = 14
+	case temperature = 15
 	
 	/// Power left right balance as a percentage <50% favours the left pedal > 50% favours the right.
-	case lrBalance
-	case torqueEffectivenessLeft
-	case torqueEffectivenessRight
-	case torqueEffectivenessCombined
-	case pedalSmoothnessLeft
-	case pedalSmoothnessRight
-	case pedalSmoothnessCombined
-	case timestamp
-	case workoutTime
-	case startTime
+	case lrBalance = 16
+	case torqueEffectivenessLeft = 17
+	case torqueEffectivenessRight = 18
+	case torqueEffectivenessCombined = 19
+	case pedalSmoothnessLeft = 20
+	case pedalSmoothnessRight = 21
+	case pedalSmoothnessCombined = 22
+	case timestamp = 23
+	case workoutTime = 24
+	case startTime = 25
 	
 	/// An array of range values for each target in m
-	case radarRanges
+	case radarRanges = 26
 	
 	/// An array of speed values for each target in m/s
-	case radarSpeeds
+	case radarSpeeds = 27
 
 	/// Number of targets currently in range
-	case radarTargetCount
+	case radarTargetCount = 28
 	
 	/// total number of targets detected
-	case radarTargetTotalCount
+	case radarTargetTotalCount = 29
 	
 	/// Speed in m/s that a target approaches at
-	case radarPassingSpeed
+	case radarPassingSpeed = 30
 	
 	// the difference between speed of target and current speed.
-	case radarPassingSpeedAbs
+	case radarPassingSpeedAbs = 31
     
     /// What is the current status of the radar. connected or disconnected?
-    case radarStatus
+    case radarStatus = 32
 	
 	public var units: Dimension {
 		switch self {
