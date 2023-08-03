@@ -19,19 +19,17 @@ public class AGFeatureNonConsumableIAP {
 	
 	public var logger = Logger(subsystem: "com.antokne.core", category: "AGFeatureNonConsumableIAP")
 
-
 	/// A defaults "cache" value to use before product is avaialble
 	private var defaultsValue: AGUserDefaultBoolValue
 
 	public var product: Product?
+	
+	public var transaction: Transaction?
 	{
 		didSet {
 			updateDefaultValue()
 		}
 	}
-	
-	public var transaction: Transaction?
-	
 	
 	public init(iconName: String, defaultName: String, productId: String, description: String, rule: AGFeatureRuleProtocol) {
 		self.iconName = iconName
@@ -44,7 +42,7 @@ public class AGFeatureNonConsumableIAP {
 	
 	private func updateDefaultValue() {
 		// set default value from product value.
-		print("have a product update default value")
+		defaultsValue.boolValue = (transaction != nil)
 	}
 	
 }
@@ -63,10 +61,10 @@ extension AGFeatureNonConsumableIAP: AGFeatureProtocol {
 	
 	public var enabled: Bool {
 		get {
-			transaction != nil
+			defaultsValue.boolValue || transaction != nil
 		}
 		set {
-			// makes no sense here.
+			defaultsValue.boolValue = newValue
 		}
 	}
 	
@@ -85,9 +83,11 @@ extension AGFeatureNonConsumableIAP: AGFeatureProtocol {
 		switch result {
 		case .success(.verified(let transaction)):
 			self.transaction = transaction
+			self.defaultsValue.boolValue = true
 			await transaction.finish()
 			return true
 		default:
+			self.defaultsValue.boolValue = true
 			return false
 		}
 	}
