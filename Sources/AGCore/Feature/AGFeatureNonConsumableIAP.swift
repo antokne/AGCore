@@ -41,8 +41,8 @@ public class AGFeatureNonConsumableIAP {
 	}
 	
 	private func updateDefaultValue() {
-		// set default value from product value.
-		defaultsValue.boolValue = (transaction != nil)
+		// set default value from transaction.
+		defaultsValue.boolValue = (transaction?.revocationDate == nil)
 	}
 	
 }
@@ -61,7 +61,7 @@ extension AGFeatureNonConsumableIAP: AGFeatureProtocol {
 	
 	public var enabled: Bool {
 		get {
-			defaultsValue.boolValue || transaction != nil
+			transaction == nil ? defaultsValue.boolValue : transaction?.revocationDate == nil
 		}
 		set {
 			defaultsValue.boolValue = newValue
