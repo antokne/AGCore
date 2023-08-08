@@ -45,7 +45,8 @@ public struct AGAccumulatorMultiData: Codable {
 		currentData.updateWorkoutTime(date: date)
 	}
 	
+	/// Activity total active time (excludes pauses)
 	public var activityTotalTime: TimeInterval {
-		previousData.map { $0.totalTimeS }.reduce(0, +) + currentData.totalTimeS
+		previousData.map { $0.durationS }.reduce(0, +) + currentData.durationS
 	}
 }
