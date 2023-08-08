@@ -12,6 +12,7 @@ import Cocoa
 
 public typealias AGColor = NSColor
 public typealias AGImage = NSImage
+public typealias AGRect = NSRect
 
 extension AGImage {
 	public func pngData() -> Data? {
@@ -36,11 +37,13 @@ extension Data {
 }
 
 
+
 #endif
 #if os(iOS)
 import UIKit
 public typealias AGColor = UIColor
 public typealias AGImage = UIImage
+public typealias AGRect = CGRect
 
 extension AGImage {
 	
