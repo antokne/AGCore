@@ -10,6 +10,7 @@ import Foundation
 public enum AGZoneType: Int {
 	case heartrate
 	case power
+	case cadence
 }
 
 public struct AGZone {

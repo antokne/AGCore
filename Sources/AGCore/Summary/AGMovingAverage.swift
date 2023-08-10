@@ -26,6 +26,10 @@ public class AGMovingAverage: NSObject {
 	
 	private var maxEntrySize: Int = 0
 	
+	/// Creates a moving average calculator for the ms time requested.
+	/// - Parameters:
+	///   - ms: ms to calculate the moving average over.
+	///   - sum: default to 0
 	init(ms: Int, sum: Double = 0) {
 		self.ms = ms
 		self.sum = sum

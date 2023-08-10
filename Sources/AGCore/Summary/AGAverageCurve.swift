@@ -48,6 +48,16 @@ public class AGAverageCurve: NSObject {
 		self.totalActivityTimeS = totalActivityTimeS
 	}
 	
+	/// Create an array of curve point data for number of seconds to calculate average for.
+	/// This is dependant on total time of the activity.
+	///
+	/// Rules are:
+	///  * Under 5 seconds a curve point every second.
+	///  * Under 30s a curve point every 5 s
+	///  * Under 1 min a  curve point every 30 s
+	///  * Under 10m a curve point every 1m
+	///  * Under 1hr a curve point every 10m
+	///  * over 1 hour a  curve point every 1 hr.
 	private func createPoints() {
 				
 		// get whole minutes and at least 1.
@@ -70,7 +80,7 @@ public class AGAverageCurve: NSObject {
 				step += 30
 			case _ where step >= 5:		// Over 5s add a point every 5s
 				step += 5
-			default:
+			default:					// Otherwise add a point for every second.
 				step += 1
 			}
 		}
@@ -117,6 +127,7 @@ public class AGAverageCurve: NSObject {
 		}
 	}
 	
+	/// Returns the current best avergae curve points
 	public var points: [AGAverageCurvePoint] {
 		bestPoints
 	}
