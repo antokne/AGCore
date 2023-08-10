@@ -22,3 +22,24 @@ extension Data {
 		return self.map { String(format: format, $0) }.joined()
 	}
 }
+
+
+extension String {
+	
+	public func asData() -> Data? {
+		
+		var data = Data()
+		let integers = self.compactMap(\.hexDigitValue)
+		for idx in stride(from: 0, to: integers.count, by: 2) {
+			let int1 = UInt8(integers[idx])
+			let int2 = UInt8(integers[idx + 1])
+			let value = int1 * 16 + int2
+			data.append(value)
+		}
+		return data
+	}
+	
+	public func index(_ idx: Int) -> Index {
+		self.index(self.startIndex, offsetBy: idx)
+	}
+}
