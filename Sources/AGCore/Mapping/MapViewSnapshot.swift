@@ -11,6 +11,14 @@ import MapKit
 public class MapViewSnapshot: NSObject {
 	
 #if os(iOS)
+	
+	/// Generate a snapshot image of the list of coords that can be displayed on screen
+	/// - Parameters:
+	///   - coords: a list of coordinates
+	///   - size: the size of the image to generate
+	///   - colour: the color to use for the path of coordinates
+	///   - width: the width if the line to use for the path of coordinates
+	/// - Returns: A OS specific image if successful
 	public func generateSnapshotImageView(coords: [CLLocationCoordinate2D], size: CGSize, colour: AGColor, width: CGFloat) async throws -> AGImage? {
 
 		let polyLine = MKPolyline.init(coordinates: coords, count: coords.count)
@@ -22,9 +30,11 @@ public class MapViewSnapshot: NSObject {
 		
 		let snapShotter = MKMapSnapshotter(options: options)
 		
+		// Get the map snapshot image
 		let snapshot = try await snapShotter.start(with: DispatchQueue.global(qos: .utility))
 		let image = snapshot.image
 		
+		// TODO: Split into two methods when we need a macOS version.
 		UIGraphicsBeginImageContextWithOptions(image.size, true, image.scale)
 		image.draw(at: CGPoint.zero)
 		
@@ -32,12 +42,15 @@ public class MapViewSnapshot: NSObject {
 			return nil
 		}
 		
+		// Now we can add the polyline data over the top of the map image
+		
 		context.setStrokeColor(colour.cgColor)
 		context.setLineWidth(width)
 		context.beginPath()
 		
 		var first = true
 		
+		// TODO: - Improve performance by filtering coords based on distance between or number of coords.
 		for coord in coords {
 			
 			let point = snapshot.point(for: coord)
@@ -52,6 +65,7 @@ public class MapViewSnapshot: NSObject {
 		
 		context.strokePath()
 		
+		// And finally generate the image with the polyline
 		let generatedImage = UIGraphicsGetImageFromCurrentImageContext()
 		UIGraphicsEndImageContext()
 		

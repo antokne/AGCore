@@ -60,11 +60,12 @@ public class AGFeatureUserDefaults {
 	public private(set) var description: String
 	private var rule: AGFeatureRuleProtocol
 	
-	public init(iconName: String, name: String, description: String, rule: AGFeatureRuleProtocol) {
+	public init(iconName: String, name: String, description: String, rule: AGFeatureRuleProtocol, enabled: Bool = false) {
 		self.iconName = iconName
 		self.defaultsValue = AGUserDefaultBoolValue(keyName: name)
 		self.description = description
 		self.rule = rule
+		self.defaultsValue.boolValue = enabled
 	}
 }
 

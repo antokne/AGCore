@@ -207,10 +207,10 @@ struct CustomAlert_Previews: PreviewProvider {
 		let primaryButton   = CustomAlertButton(title: "Save")
 		let secondaryButton = CustomAlertButton(title: "Discard")
 		
-		let title = "This is your life. Do what you want and do it often."
+		let title = "What you would like to do?"
 		let message = """
-					If you don't like something, change it.
-					If you don't like your job, quit.
+					Go for a bike ride?
+					Play a Game?
 					If you don't have enough time, stop watching TV.
 					"""
 		

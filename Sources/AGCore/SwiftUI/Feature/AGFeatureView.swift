@@ -24,7 +24,7 @@ public struct AGFeatureView: View {
 	public var body: some View {
 		VStack(alignment: .leading) {
 			HStack {
-				VStack {
+				VStack(alignment: .leading) {
 					HStack {
 						Text(feature.iconName)
 							.font(.system(size: 40))

@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-// Allows cusotm code for swiftui based on platform.
+// Allows custom code for swiftui based on platform.
 // e.g. .iOS { $0.italic() }
 //
 
