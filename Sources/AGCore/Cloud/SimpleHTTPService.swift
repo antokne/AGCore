@@ -92,8 +92,8 @@ public typealias LogInResult = (token: String?, headers: [AnyHashable : Any])
 public struct SimpleHTTPService: AGCloudServiceProtcol {
 	
 	public private(set) var loginType: SimpleHTTPLoginType = .myBikeTraffic
-	var loginURL: URL?
-	var uploadURL: URL?
+	public private(set) var loginURL: URL?
+	public private(set) var uploadURL: URL?
 	
 	private(set) public var uploadProgress = CurrentValueSubject<Double, Never>(Double(0.0))
 	public lazy var uploadProgresssPublisher: AnyPublisher<Double, Never> = {
