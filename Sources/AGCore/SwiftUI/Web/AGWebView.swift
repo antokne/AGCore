@@ -20,14 +20,19 @@ public typealias AGViewRepresentable = UIViewRepresentable
 public struct AGWebView: AGViewRepresentable {
 
 	let url: URL
+	var webConfig: WKWebViewConfiguration?
 	
-	public init(url: URL) {
+	public init(url: URL, webConfig: WKWebViewConfiguration? = nil) {
 		self.url = url
+		self.webConfig = webConfig
 	}
 
 #if os(iOS)
 	public func makeUIView(context: Context) -> WKWebView  {
-		let wkwebView = WKWebView()
+		var wkwebView = WKWebView()
+		if let webConfig {
+			wkwebView = WKWebView(frame: .zero, configuration: webConfig)
+		}
 		let request = URLRequest(url: url)
 		wkwebView.load(request)
 		return wkwebView
@@ -40,7 +45,10 @@ public struct AGWebView: AGViewRepresentable {
 #if os(macOS)
 
 	public func makeNSView(context: Self.Context) -> WKWebView {
-		let wkwebView = WKWebView()
+		var wkwebView = WKWebView()
+		if let webConfig {
+			wkwebView = WKWebView(frame: .zero, configuration: webConfig)
+		}
 		let request = URLRequest(url: url)
 		wkwebView.load(request)
 		return wkwebView
@@ -53,6 +61,9 @@ public struct AGWebView: AGViewRepresentable {
 
 	
 }
+
+
+
 
 struct AGWebView_Previews: PreviewProvider {
 	static var previews: some View {
