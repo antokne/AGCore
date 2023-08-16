@@ -85,6 +85,8 @@ public protocol AGCloudServiceProtcol {
 	func progress(progress: Double)
 }
 
+public typealias LogInResult = (token: String?, headers: [AnyHashable : Any])
+
 
 // TODO: - Make MyBikeTraffic it's own thing and this just calls it.
 public struct SimpleHTTPService: AGCloudServiceProtcol {
@@ -100,7 +102,7 @@ public struct SimpleHTTPService: AGCloudServiceProtcol {
 	
 	private var logger = Logger(subsystem: "com.antokne.core", category: "SimpleHTTPService")
 
-	public func login(email: String, password: String) async throws -> String? {
+	public func login(email: String, password: String) async throws -> LogInResult {
 		
 		guard let loginURL else {
 			throw SimpleHTTPError.invalidURL
@@ -155,7 +157,7 @@ public struct SimpleHTTPService: AGCloudServiceProtcol {
 
 			logger.debug("login with a cookie \(result)")
 
-			return String(result)
+			return (String(result), httpResponse.allHeaderFields)
 		}
 	}
 	
@@ -174,7 +176,8 @@ public struct SimpleHTTPService: AGCloudServiceProtcol {
 		}
 		
 		// 1. login.
-		var result = try await login(email: auth.email, password: auth.password)
+		let loginResult = try await login(email: auth.email, password: auth.password)
+		var result = loginResult.token
 		
 		// if nil then try the one we currently have
 		switch self.loginType {

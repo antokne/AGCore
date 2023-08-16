@@ -74,7 +74,8 @@ public class SimpleHTTPLoginViewModel: ObservableObject, Identifiable{
 		
 		Task {
 			do {
-				let result = try await simpleHTTPService.login(email: email, password: password)
+				let loginResult = try await simpleHTTPService.login(email: email, password: password)
+				let result = loginResult.token
 				
 				self.sucess = true
 				self.showToast = true
