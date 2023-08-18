@@ -128,8 +128,8 @@ open class AGAccumulator: Codable {
 	
 	/// Load cache data from folder
 	/// - Parameter folder: the folder that the cache files are located
-	public func loadRawData(from folder: URL) async throws {
-		rawData = try await AGAccumulatorRawData.load(from: folder)
+	public func loadRawData(from folder: URL, progress: (Double) -> Void) async throws {
+		rawData = try await AGAccumulatorRawData.load(from: folder, progress: progress)
 	}
 		
 	// an accumulator gets instant values from somewhere and accumulates them into various things

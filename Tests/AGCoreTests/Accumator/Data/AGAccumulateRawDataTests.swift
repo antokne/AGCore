@@ -35,7 +35,9 @@ final class AGAccumulateRawDataTests: XCTestCase {
 		
 		// Check 1
 		// load file
-		var loadedData = try await AGAccumulatorRawData.load(from: AGFileManager.documentsURL)
+		var loadedData = try await AGAccumulatorRawData.load(from: AGFileManager.documentsURL) { progress in
+			
+		}
 		
 		// should contain just the above data.
 		XCTAssertEqual(2, loadedData.maxSecond)
@@ -62,7 +64,9 @@ final class AGAccumulateRawDataTests: XCTestCase {
 
 	
 		// load file 2
-		loadedData = try await AGAccumulatorRawData.load(from: AGFileManager.documentsURL)
+		loadedData = try await AGAccumulatorRawData.load(from: AGFileManager.documentsURL) { progress in
+			
+		}
 		
 		// should contain what we had after last data was added.
 		XCTAssertEqual(4, loadedData.maxSecond)

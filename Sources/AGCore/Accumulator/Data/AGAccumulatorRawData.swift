@@ -40,6 +40,11 @@ private var logger = Logger(subsystem: "com.antokne.core", category: "AGAccumula
 /// Recorded at 1Hz as is the standard.
 public struct AGAccumulatorRawData: Codable {
 	
+	public enum Status {
+		case progress(Float)
+		case completed(AGAccumulatorRawData)
+	}
+	
 	/// All data added to raw data dict.
 	private(set) public var data: [Int: AGAccumulatorRawInstantData] = [: ]
 	
@@ -164,29 +169,51 @@ public struct AGAccumulatorRawData: Codable {
 		logger.info("Saving cache data completed. cached \(seconds, privacy: .public) seconds")
 	}
 	
-	public static func load(from folder: URL) async throws -> AGAccumulatorRawData {
+	public static func load(from folder: URL, progress: (Double) -> Void) async throws -> AGAccumulatorRawData {
 		
 		var loaded = AGAccumulatorRawData()
-				
-		var fileName = folder.appending(path: activityInstantValueDataFileName)
-		loaded.data = try await loaded.load(fileName: fileName, type: AGAccumulatorRawInstantData.self)
+						
 		
-		fileName = folder.appending(path: activityArrayValuesDataFileName)
-		loaded.arrayData = try await loaded.load(fileName: fileName, type: AGAccumulatorRawArrayInstantData.self)
+		let valuesFileName = folder.appending(path: activityInstantValueDataFileName)
+		let valuesFileSize = FileManager.helpers.fileSize(url: valuesFileName) ?? 0
+		
+		let arrayFileName = folder.appending(path: activityArrayValuesDataFileName)
+		let arrayValuesFileSize = FileManager.helpers.fileSize(url: arrayFileName) ?? 0
+		
+		let totalFileSize = (arrayValuesFileSize + valuesFileSize)
+		
+		var progressFileSize = 0
+		
+		var accumulatedProgress: Double {
+			Double(progressFileSize) / Double(totalFileSize)
+		}
+		
+		loaded.data = try await loaded.load(fileName: valuesFileName, type: AGAccumulatorRawInstantData.self) { loadProgress in
+			progressFileSize += loadProgress
+			progress(accumulatedProgress)
+		}
+		
+		loaded.arrayData = try await loaded.load(fileName: arrayFileName, type: AGAccumulatorRawArrayInstantData.self) { loadProgress in
+			progressFileSize += loadProgress
+			progress(accumulatedProgress)
+		}
 		
 		return loaded
 	}
-	
-	public mutating func load<T: Decodable>(fileName: URL, type: T.Type) async throws -> [Int: T] {
+		
+	public mutating func load<T: Decodable>(fileName: URL, type: T.Type, progress: (Int) -> Void) async throws  -> [Int: T] {
 		
 		logger.info("Loading cache data for \(fileName.lastPathComponent, privacy: .public)")
-
+		
 		let decoder = JSONDecoder()
 		
 		var valueData: [Int: T] = [:]
-		
+				
 		for try await line in fileName.lines {
-						let parts = line.split(separator: AGAccumulatorRawData.secondDataSeparator)
+			
+			progress(line.count + 1)
+			
+			let parts = line.split(separator: AGAccumulatorRawData.secondDataSeparator)
 			let second = Int(parts.first ?? "0") ?? 0
 			let encodedString = parts.last ?? ""
 			
@@ -204,7 +231,8 @@ public struct AGAccumulatorRawData: Codable {
 			self.updateSecond(second: second)
 		}
 		logger.info("Loading cache data completed")
-
+		
 		return valueData
 	}
+
 }
