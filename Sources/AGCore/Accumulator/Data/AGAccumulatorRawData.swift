@@ -51,13 +51,15 @@ public struct AGAccumulatorRawData: Codable {
 	private(set) public var arrayData: [Int: AGAccumulatorRawArrayInstantData] = [: ]
 	
 	private(set) public var maxSecond: Int = 0
-
+	
+	/// updated during save process.
 	private(set) public var cachedSecond: Int = 0
 	
-	init() {
-		
-	}
-	
+	/// Added a vale for a data type for the second specified. Overwrites data if it exists.
+	/// - Parameters:
+	///   - value: the type value to set
+	///   - second: the second since activity start
+	///   - paused: falg indicating if currently paused.
 	mutating func add(value: AGDataTypeValue, second: Int, paused: Bool = false) {
 		if data[second] == nil {
 			data[second] = AGAccumulatorRawInstantData()
@@ -125,6 +127,8 @@ public struct AGAccumulatorRawData: Codable {
 		updateCacheSecond(second: maxSecond )
 	}
 	
+	/// Removes the cache files located in folder
+	/// - Parameter folder: location of the cache files to remove
 	public func clearCache(in folder: URL) {
 		
 		var fileName = folder.appending(path: AGAccumulatorRawData.activityInstantValueDataFileName)
@@ -133,7 +137,12 @@ public struct AGAccumulatorRawData: Codable {
 		fileName = folder.appending(path: AGAccumulatorRawData.activityArrayValuesDataFileName)
 		try? FileManager.default.removeItem(at: fileName)
 	}
-		
+	
+	/// Save the raw value data cache files into file.
+	/// Note that this remembers last second saved. so only saves the new delta data each time called
+	/// - Parameters:
+	///   - fileName: file name where to save the data
+	///   - valueData: value array to encode and save.
 	private mutating func save<T: Encodable>(fileName: URL, valueData: [Int: T]) throws {
 		let encoder = JSONEncoder()
 
