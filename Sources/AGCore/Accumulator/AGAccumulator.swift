@@ -128,7 +128,7 @@ open class AGAccumulator: Codable {
 	
 	/// Load cache data from folder
 	/// - Parameter folder: the folder that the cache files are located
-	public func loadRawData(from folder: URL, progress: (Double) -> Void) async throws {
+	public func loadRawData(from folder: URL, progress: @escaping (Double) -> Void) async throws {
 		rawData = try await AGAccumulatorRawData.load(from: folder, progress: progress)
 	}
 		

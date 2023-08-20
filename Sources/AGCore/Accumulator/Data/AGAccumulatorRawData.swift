@@ -178,7 +178,7 @@ public struct AGAccumulatorRawData: Codable {
 		logger.info("Saving cache data completed. cached \(seconds, privacy: .public) seconds")
 	}
 	
-	public static func load(from folder: URL, progress: (Double) -> Void) async throws -> AGAccumulatorRawData {
+	public static func load(from folder: URL, progress: @escaping (Double) -> Void) async throws -> AGAccumulatorRawData {
 		
 		var loaded = AGAccumulatorRawData()
 						
@@ -199,15 +199,25 @@ public struct AGAccumulatorRawData: Codable {
 		
 		loaded.data = try await loaded.load(fileName: valuesFileName, type: AGAccumulatorRawInstantData.self) { loadProgress in
 			progressFileSize += loadProgress
-			progress(accumulatedProgress)
+			updateProgress(progress: accumulatedProgress, progressCompletion: progress)
 		}
 		
 		loaded.arrayData = try await loaded.load(fileName: arrayFileName, type: AGAccumulatorRawArrayInstantData.self) { loadProgress in
 			progressFileSize += loadProgress
-			progress(accumulatedProgress)
+			updateProgress(progress: accumulatedProgress, progressCompletion: progress)
 		}
 		
 		return loaded
+	}
+	
+	/// Update pogress on the main threas
+	/// - Parameters:
+	///   - progress: percent progress
+	///   - progressCompletion: completion to call on main thread.
+	static func updateProgress(progress: Double, progressCompletion: @escaping (Double) -> Void) {
+		DispatchQueue.main.async {
+			progressCompletion(progress)
+		}
 	}
 		
 	public mutating func load<T: Decodable>(fileName: URL, type: T.Type, progress: (Int) -> Void) async throws  -> [Int: T] {

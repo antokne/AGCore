@@ -21,8 +21,9 @@ public struct AGProgressAlertView: View {
 	
 	public var body: some View {
 		VStack {
+			Spacer()
 			Text(title)
-				.font(.title)
+				.font(.title2)
 				.minimumScaleFactor(0.5)
 			ProgressView(value: percent)
 		}
