@@ -27,4 +27,16 @@ extension UInt8 {
 	public func extractBits(using mask: UInt8) -> UInt8 {
 		self & mask
 	}
+	
+	
+	public func hexString() -> String {
+		var string = String(self, radix: 2)
+		while string.count < 8 {
+			string = "0" + string
+		}
+		return string
+	}
+
 }
+
+
