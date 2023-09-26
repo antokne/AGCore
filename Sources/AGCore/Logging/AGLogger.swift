@@ -18,7 +18,7 @@ extension NSNotification.Name {
 	public static let AGLoggerGenerateLog: NSNotification.Name = NSNotification.Name(rawValue: "AGLoggeGenerateLogNotificationName")
 }
 
-public struct AGLogFile: Hashable {
+public struct AGLogFile: Hashable, Sendable {
 	public private(set) var logFileURL: URL
 	
 	public init(logFileURL: URL) {

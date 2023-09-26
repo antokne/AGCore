@@ -11,7 +11,7 @@ public class AGFileManager {
 	
 	public static let shared: AGFileManager = AGFileManager()
 	
-	public static var documentsURL = URL.documentsDirectory
+	public static let documentsURL = URL.documentsDirectory
 	
 	/// Constructs a url  folder from documents folder and creates if required.
 	/// - Parameters:
