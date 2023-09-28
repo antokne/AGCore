@@ -1,6 +1,6 @@
 //
 //  Date+ExtensionsTests.swift
-//  
+//
 //
 //  Created by Ant Gardiner on 21/09/23.
 //
@@ -8,28 +8,34 @@
 import XCTest
 
 final class Date_ExtensionsTests: XCTestCase {
+	
+	override func setUpWithError() throws {
+	}
+	
+	override func tearDownWithError() throws {
+	}
+	
+	func testStartOfWeek() throws {
+		
+		let RFC3339DateFormatter = DateFormatter.RFC3339DateFormatter()
+		
+		let string = "2022-12-19T10:39:57-00:00"
+		let date = try XCTUnwrap(RFC3339DateFormatter.date(from: string))
+		
+		let startOfWeek = try XCTUnwrap(date.startOfWeek)
+		let sowString = RFC3339DateFormatter.string(from: startOfWeek)
+		XCTAssertEqual(sowString, "2022-12-19T00:00:00+13:00")
+		
+	}
 
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-    }
+	func testAddSecond() throws {
+		
+		var now = Date()
+		let anotherDate = now.plus(3)
 
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
-
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // Any test you write for XCTest can be annotated as throws and async.
-        // Mark your test throws to produce an unexpected failure when your test encounters an uncaught error.
-        // Mark your test async to allow awaiting for asynchronous code to complete. Check the results with assertions afterwards.
-    }
-
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
-        }
-    }
-
+		now.addTimeInterval(3)
+		
+		XCTAssertEqual(now, anotherDate)
+		
+	}
 }

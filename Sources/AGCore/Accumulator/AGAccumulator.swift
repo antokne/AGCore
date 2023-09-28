@@ -80,7 +80,7 @@ open class AGAccumulator: Codable {
 	
 	private(set) public var rawData: AGAccumulatorRawData = AGAccumulatorRawData()
 	
-	/// Time activity recording started
+	/// Time activity recording started - in GMT time
 	private(set) public var startDate: Date? = nil
 			
 	public init() {
@@ -183,7 +183,7 @@ open class AGAccumulator: Codable {
 	/// An even has occured process the data accordingly
 	/// - Parameters:
 	///   - event: the event tupe
-	///   - date: the timestamp of the event.
+	///   - date: the timestamp of the event using gmt
 	public func event(event: AGAccumulatorEvent, at date: Date) {
 
 		switch event {

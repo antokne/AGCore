@@ -12,6 +12,9 @@ public class AGFormatter: NSObject {
 	
 	public static let sharedFormatter = AGFormatter()
 
+	// Current timezone to use
+	public var timeZone: TimeZone = TimeZone.current
+	
     // MARK: - Private
     private lazy var numberFormatter: NumberFormatter = {
         let numberFormatter = NumberFormatter()
@@ -36,10 +39,11 @@ public class AGFormatter: NSObject {
     ///
     /// - Parameter date: date to format
     /// - Returns: a string using medium date style
-    public func formatDate(date: Date) -> String {
+	public func formatDate(date: Date, timeZone: TimeZone? = nil) -> String {
         dateFormatter.dateFormat = nil
         dateFormatter.dateStyle = .medium
         dateFormatter.timeStyle = .none
+		dateFormatter.timeZone = timeZone ?? self.timeZone
         return dateFormatter.string(from: date)
     }
     
@@ -48,10 +52,11 @@ public class AGFormatter: NSObject {
     ///
     /// - Parameter date: date to format
     /// - Returns: a string representing the time in short style.
-    public func formatTime(date: Date) -> String {
+    public func formatTime(date: Date, timeZone: TimeZone? = nil) -> String {
         dateFormatter.dateFormat = nil
         dateFormatter.dateStyle = .none
         dateFormatter.timeStyle = .short
+		dateFormatter.timeZone = timeZone ?? self.timeZone
         return dateFormatter.string(from: date)
     }
 

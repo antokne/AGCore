@@ -21,6 +21,11 @@ public extension Date {
 	/// - Parameter seconds: to add
 	/// - Returns: new date with seconds added
 	func plus(_ seconds: TimeInterval) -> Date {
-		self.addingTimeInterval(seconds)
+		self + seconds
+	}
+	
+	/// A reminder that this is a plain old date with no time zone information attached.
+	static var gmt: Date {
+		Date()
 	}
 }
