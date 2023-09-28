@@ -27,11 +27,11 @@ public struct AGFeatureView: View {
 				VStack(alignment: .leading) {
 					HStack {
 						Text(feature.iconName)
-							.font(.system(size: 40))
+							.font(.system(size: 20))
 							.background(.ultraThickMaterial)
 							.cornerRadius(5)
 						Text(feature.name)
-							.font(.title2)
+							.font(.title3)
 						Spacer()
 					}
 					Text(feature.description)
@@ -82,7 +82,7 @@ struct AGFeatureView_Previews: PreviewProvider {
 	static var previews: some View {
 		List {
 			AGFeatureView(feature: AGFeatureUserDefaults(iconName: "🚴",
-														 name: "Bla feature",
+														 name: "Unlimited activity recording",
 														 description: "Do this or do that?",
 					 									 rule: AGFeatureRuleLimitCount(value: 3))) { enabled in
 				
