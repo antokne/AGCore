@@ -15,6 +15,8 @@ public class AGFormatter: NSObject {
 	// Current timezone to use
 	public var timeZone: TimeZone = TimeZone.current
 	
+	public var locale: Locale = Locale.current
+	
     // MARK: - Private
     private lazy var numberFormatter: NumberFormatter = {
         let numberFormatter = NumberFormatter()
@@ -163,6 +165,12 @@ public class AGFormatter: NSObject {
 	}
 }
 
+public extension AGFormatter {
+	var metric: Bool {
+		locale.measurementSystem == .metric
+	}
+}
+
 // Simple quick conversions
 public extension AGFormatter {
 	func metersPerSecondToKilometersPerHour(mps: Double) -> Double {
@@ -176,4 +184,14 @@ public extension AGFormatter {
 	func metersTofeet(meters: Double) -> Double {
 		meters * 3.280839895
 	}
+	
+	func speedConverted(_ mps: Double) -> Double {
+		metric ? metersPerSecondToKilometersPerHour(mps: mps) :
+		metersPerSecondToMilesPerHour(mps: mps)
+	}
+	
+	func distanceConverted(_ meters: Double) -> Double {
+		metric ? meters : metersTofeet(meters: meters)
+	}
+	
 }
