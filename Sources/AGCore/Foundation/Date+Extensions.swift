@@ -9,12 +9,13 @@ import Foundation
 
 public extension Date {
 	var startOfWeek: Date? {
-		let gregorian = Calendar(identifier: .gregorian)
+		let gregorian = Calendar.current
 		guard let sunday = gregorian.date(from: gregorian.dateComponents([.yearForWeekOfYear, .weekOfYear], from: self))
 		else {
 			return nil
 		}
-		return gregorian.date(byAdding: .day, value: 1, to: sunday)
+		
+		return sunday
 	}
 	
 	/// Add n second to date.
