@@ -31,10 +31,17 @@ struct AGMultiPartFormRequest {
 		fileURL.lastPathComponent
 	}
 	
+	var fileLength: Int? {
+		FileManager.helpers.fileSize(url: fileURL)
+	}
+	
 	func httpBody() throws -> Data {
 		var httpBody = Data()
 		httpBody.append(contentsOf: "--\(boundary)\r\n".utf8)
 		httpBody.append(contentsOf: "Content-Disposition: form-data; name=\"\(name)\"; filename=\"\(filename)\"\r\n".utf8)
+		if let length = fileLength {
+			httpBody.append(contentsOf: "Content-Length: \(length)\r\n".utf8)
+		}
 		httpBody.append(contentsOf: "Content-Type: \(contentType)\r\n".utf8)
 		httpBody.append(contentsOf: "\r\n".utf8)
 		httpBody.append(try fileData())
