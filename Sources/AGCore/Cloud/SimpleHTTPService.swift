@@ -70,6 +70,7 @@ public enum SimpleHTTPError: Error {
 	case serverError(error: String)
 }
 
+/// Simple login sites currently supported
 public enum SimpleHTTPLoginType {
 	case myBikeTraffic
 	
@@ -81,12 +82,13 @@ public enum SimpleHTTPLoginType {
 	}
 }
 
+/// In progress delegate protocol
 public protocol AGCloudServiceProtcol {
 	func progress(progress: Double)
 }
 
+/// tuple containing the token and all headers
 public typealias LogInResult = (token: String?, headers: [AnyHashable : Any])
-
 
 // TODO: - Make MyBikeTraffic it's own thing and this just calls it.
 public struct SimpleHTTPService: AGCloudServiceProtcol {
@@ -132,7 +134,8 @@ public struct SimpleHTTPService: AGCloudServiceProtcol {
 			sessionDelegate = MyBikeTrafficDelegate()
 		}
 		
-		let configuration = URLSessionConfiguration.default
+		// Use background session to log in.
+		let configuration = AGSessionConfiguration.backgroundSessionConfiguration
 		let session = URLSession(configuration: configuration, delegate: sessionDelegate, delegateQueue: nil)
 		
 		let (_, response) = try await session.data(for: request)
@@ -155,7 +158,7 @@ public struct SimpleHTTPService: AGCloudServiceProtcol {
 				throw SimpleHTTPError.authenticationFailed
 			}
 
-			logger.debug("login with a cookie \(result)")
+			logger.debug("logged in with cookie: \(result)")
 
 			return (String(result), httpResponse.allHeaderFields)
 		}
@@ -175,17 +178,18 @@ public struct SimpleHTTPService: AGCloudServiceProtcol {
 			throw SimpleHTTPError.invalidURL
 		}
 		
-		// 1. login.
-		let loginResult = try await login(email: auth.email, password: auth.password)
-		var result = loginResult.token
-		
 		// if nil then try the one we currently have
 		switch self.loginType {
 		case .myBikeTraffic:
+			
+			// 1. login.
+			let loginResult = try await login(email: auth.email, password: auth.password)
+			var result = loginResult.token
 			if result == nil {
 				logger.warning("Trying to use saved cookie, this may fail.")
 				result = auth.token
 			}
+			
 			guard let cookie = result else {
 				logger.warning("Cookie is still nil can't continue.")
 				throw SimpleHTTPError.authenticationFailed
@@ -200,9 +204,12 @@ public struct SimpleHTTPService: AGCloudServiceProtcol {
 			
 			let uploadRequest = try multiPartFormRequest.asURLRequest(url: uploadURL)
 
+			// Use a background session to perform the upload.
+			let configuration = AGSessionConfiguration.backgroundSessionConfiguration
+
 			let delegate = UploadServiceDelegate(delegate: self) as? URLSessionTaskDelegate
-			let (data, _) = try await URLSession.shared.data(for: uploadRequest, delegate: delegate)
-			
+			let session = URLSession(configuration: configuration, delegate: delegate, delegateQueue: nil)
+			let (data, _) = try await session.data(for: uploadRequest, delegate: delegate)
 			var mbtResponse: MyBikeTrafficUploadResponse? = nil
 			do {
 				mbtResponse = try data.decodeData()
