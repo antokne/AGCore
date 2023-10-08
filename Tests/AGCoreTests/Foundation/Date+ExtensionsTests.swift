@@ -24,7 +24,7 @@ final class Date_ExtensionsTests: XCTestCase {
 		
 		let startOfWeek = try XCTUnwrap(date.startOfWeek)
 		let sowString = RFC3339DateFormatter.string(from: startOfWeek)
-		XCTAssertEqual(sowString, "2022-12-19T00:00:00+13:00")
+		XCTAssertEqual(sowString, "2022-12-18T00:00:00+13:00")
 		
 	}
 

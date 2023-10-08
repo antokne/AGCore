@@ -20,7 +20,9 @@ final class AGUserDefaultsTests: XCTestCase {
 
 		@AGUserDefaultStringValue(keyName: "activity-folder", defaultValue: "activities") var defaultSubFolder: String
 		
-		XCTAssertEqual(defaultSubFolder, "activities")
+		let subFolder = defaultSubFolder
+		
+		XCTAssertEqual(subFolder, "activities")
 		
 		defaultSubFolder = "documents"
 		
