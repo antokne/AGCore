@@ -13,9 +13,9 @@ enum SimpleHTTPLoginField: Hashable {
     case password
 }
 
-public class SimpleHTTPLoginViewModel: ObservableObject, Identifiable{
+public class SimpleHTTPLoginViewModel: ObservableObject, Identifiable {
 	
-	@Published var sucess: Bool = true
+	@Published var success: Bool = true
 	
 	@Published var siteName: String
 	@Published var siteImageName: String? = nil
@@ -72,20 +72,20 @@ public class SimpleHTTPLoginViewModel: ObservableObject, Identifiable{
 			return
 		}
 		
-		Task {
+		Task { @MainActor in
 			do {
 				let loginResult = try await simpleHTTPService.login(email: email, password: password)
 				let result = loginResult.token
 				
-				self.sucess = true
+				self.success = true
 				self.showToast = true
 				
-				if self.sucess{
+				if self.success{
 					self.saveCredentials(result: result)
 				}
 			}
 			catch {
-				self.sucess = false
+				self.success = false
 				self.showToast = true
 			}
 		}

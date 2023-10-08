@@ -36,10 +36,8 @@ public struct SimpletHHTPAuthRowView: View {
 		} icon: {
 			if let image = viewModel.siteImageName {
 				Image(image)
-					.renderingMode(.template)
 					.resizable()
 					.frame(width: 25, height: 25)
-					.tint(.accentColor)
 			}
 		}
 	}

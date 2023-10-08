@@ -6,8 +6,8 @@
 //
 
 import Foundation
-import Combine
-import os
+@preconcurrency import Combine
+@preconcurrency import os
 
 public protocol AGCloudServiceSiteProtocol: Codable {
 	var service: String { get }
@@ -71,7 +71,7 @@ public enum SimpleHTTPError: Error {
 }
 
 /// Simple login sites currently supported
-public enum SimpleHTTPLoginType {
+public enum SimpleHTTPLoginType: Sendable {
 	case myBikeTraffic
 	
 	var name: String {
@@ -91,7 +91,7 @@ public protocol AGCloudServiceProtcol {
 public typealias LogInResult = (token: String?, headers: [AnyHashable : Any])
 
 // TODO: - Make MyBikeTraffic it's own thing and this just calls it.
-public struct SimpleHTTPService: AGCloudServiceProtcol {
+public struct SimpleHTTPService: AGCloudServiceProtcol, Sendable {
 	
 	public private(set) var loginType: SimpleHTTPLoginType = .myBikeTraffic
 	public private(set) var loginURL: URL?
@@ -127,7 +127,7 @@ public struct SimpleHTTPService: AGCloudServiceProtcol {
 		request.httpBody = bodyString.data(using: .utf8, allowLossyConversion: true)
 		request.httpShouldHandleCookies = false
 		
-		var sessionDelegate: URLSessionDelegate? = nil
+		var sessionDelegate: URLSessionDelegate? = UploadServiceDelegate(delegate: self)
 		
 		switch self.loginType {
 		case .myBikeTraffic:
@@ -135,10 +135,14 @@ public struct SimpleHTTPService: AGCloudServiceProtcol {
 		}
 		
 		// Use background session to log in.
-		let configuration = AGSessionConfiguration.backgroundSessionConfiguration
+		let configuration = URLSessionConfiguration.ephemeral //AGSessionConfiguration.backgroundSessionConfiguration
 		let session = URLSession(configuration: configuration, delegate: sessionDelegate, delegateQueue: nil)
+
+		let (_, response) = try await session.data(for: request, delegate: UploadServiceDelegate(delegate: self) as? URLSessionTaskDelegate)
 		
-		let (_, response) = try await session.data(for: request)
+//		let task = session.dataTask(with: request)
+//		await task.resume()
+
 		
 		switch self.loginType {
 		case .myBikeTraffic:
@@ -205,7 +209,7 @@ public struct SimpleHTTPService: AGCloudServiceProtcol {
 			let uploadRequest = try multiPartFormRequest.asURLRequest(url: uploadURL)
 
 			// Use a background session to perform the upload.
-			let configuration = AGSessionConfiguration.backgroundSessionConfiguration
+			let configuration = URLSessionConfiguration.ephemeral //AGSessionConfiguration.backgroundSessionConfiguration
 
 			let delegate = UploadServiceDelegate(delegate: self) as? URLSessionTaskDelegate
 			let session = URLSession(configuration: configuration, delegate: delegate, delegateQueue: nil)
@@ -268,5 +272,9 @@ class UploadServiceDelegate: NSObject, URLSessionDelegate {
 	func urlSession(_ session: URLSession, task: URLSessionTask, didSendBodyData bytesSent: Int64, totalBytesSent: Int64, totalBytesExpectedToSend: Int64) {
 		
 		delegate?.progress(progress: Double(totalBytesSent) / Double(totalBytesExpectedToSend))
+	}
+	
+	func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+		
 	}
 }

@@ -27,6 +27,8 @@ struct SimpleHTTPLoginDetailView: View {
 					  text: $viewModel.email ,
 					  prompt: Text("email").foregroundColor(.accentColor)
 			)
+			.textContentType(.emailAddress)
+			.keyboardType(.emailAddress)
 			.focused($focusedField, equals: .email)
 			.padding(10)
 			.overlay {
@@ -41,11 +43,13 @@ struct SimpleHTTPLoginDetailView: View {
 						TextField("Password", // how to create a secure text field
 								  text: $viewModel.password,
 								  prompt: Text("Password").foregroundColor(.accentColor)) // How to change the color of the TextField Placeholder
+						.textContentType(.password)
 						.focused($focusedField, equals: .password)
 					} else {
 						SecureField("Password", // how to create a secure text field
 									text: $viewModel.password,
 									prompt: Text("Password").foregroundColor(.accentColor)) // How to change the color of the TextField Placeholder
+						.textContentType(.password)
 						.focused($focusedField, equals: .password)
 					}
 				}
@@ -91,11 +95,11 @@ struct SimpleHTTPLoginDetailView: View {
 			.padding()
 		}
 		.toast(isPresenting: $viewModel.showToast) {
-			AlertToast(type: viewModel.sucess ? .complete(.accentColor) : .error(.accentColor),
-					   title: viewModel.sucess ? "Login successful!" : "Invalid credentials.",
-					   subTitle: viewModel.sucess ? nil : "Please try again.")
+			AlertToast(type: viewModel.success ? .complete(.accentColor) : .error(.accentColor),
+					   title: viewModel.success ? "Login successful!" : "Invalid credentials.",
+					   subTitle: viewModel.success ? nil : "Please try again.")
 		} completion: {
-			if viewModel.sucess {
+			if viewModel.success {
 				viewModel.showToast = false
 				presentationMode.wrappedValue.dismiss()
 			}
@@ -137,7 +141,7 @@ struct SimpleHTTPLogoutView: View {
 			AlertToast(type: .complete(.accentColor),
 					   title: "Logout successful.")
 		} completion: {
-			if viewModel.sucess {
+			if viewModel.success {
 				viewModel.showToast = false
 				presentationMode.wrappedValue.dismiss()
 			}

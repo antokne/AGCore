@@ -15,7 +15,7 @@ public struct FileManagerHelpers {
 		
 		if #available(macOS 13.0, iOS 16.0, *) {
 			if let attributes = try? FileManager.default.attributesOfItem(atPath: url.path(percentEncoded: false)) {
-				let size = attributes[FileAttributeKey.size]
+				let size = attributes[.size]
 				return size as? Int
 			}
 		}

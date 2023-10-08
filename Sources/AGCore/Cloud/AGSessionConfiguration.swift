@@ -13,6 +13,7 @@ public class AGSessionConfiguration {
 	
 	public static var backgroundSessionConfiguration: URLSessionConfiguration = {
 		var configuration = URLSessionConfiguration.background(withIdentifier: AGSessionConfiguration.sessionConfiguartionIdentifier)
+		configuration.sessionSendsLaunchEvents = false
 		return configuration
 	}()
 }

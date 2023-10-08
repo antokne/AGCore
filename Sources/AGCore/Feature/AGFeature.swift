@@ -53,7 +53,7 @@ public protocol AGFeatureProtocol {
 }
 
 
-public class AGFeatureUserDefaults {
+public class AGFeatureUserDefaults: ObservableObject {
 	
 	public private(set) var iconName: String
 	private var defaultsValue: AGUserDefaultBoolValue
