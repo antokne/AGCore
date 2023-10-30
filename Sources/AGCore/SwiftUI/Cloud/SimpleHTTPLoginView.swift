@@ -8,6 +8,7 @@
 import SwiftUI
 import AlertToast
 
+@available(macOS 14.0, *)
 struct SimpleHTTPLoginDetailView: View {
 	@Environment(\.presentationMode) var presentationMode
 
@@ -28,7 +29,9 @@ struct SimpleHTTPLoginDetailView: View {
 					  prompt: Text("email").foregroundColor(.accentColor)
 			)
 			.textContentType(.emailAddress)
+#if os(iOS)
 			.keyboardType(.emailAddress)
+#endif
 			.focused($focusedField, equals: .email)
 			.padding(10)
 			.overlay {
@@ -150,6 +153,7 @@ struct SimpleHTTPLogoutView: View {
 }
 
 	
+@available(macOS 14.0, *)
 public struct SimpleHTTPLoginView: View {
 
 	@ObservedObject var viewModel: SimpleHTTPLoginViewModel
@@ -196,7 +200,10 @@ struct SimpleHTTPLoginView_Previews: PreviewProvider {
 													preview: true)
 	
 	static var previews: some View {
-		SimpleHTTPLoginView(viewModel: viewModel)
+		if #available(macOS 14.0, *) {
+			SimpleHTTPLoginView(viewModel: viewModel)
+		} else {
+		}
 	}
 }
 
@@ -211,8 +218,11 @@ struct SimpleHTTPLoginViewPush_Previews: PreviewProvider {
 		
 		NavigationStack {
 			List {
-				NavigationLink(destination: SimpleHTTPLoginView(viewModel: viewModel)) {
-					SimpletHHTPAuthRowView(viewModel: viewModel)
+				if #available(macOS 14.0, *) {
+					NavigationLink(destination: SimpleHTTPLoginView(viewModel: viewModel)) {
+						SimpletHHTPAuthRowView(viewModel: viewModel)
+					}
+				} else {
 				}
 			}
 		}
