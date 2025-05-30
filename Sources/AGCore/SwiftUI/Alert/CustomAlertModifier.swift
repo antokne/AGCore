@@ -22,7 +22,7 @@ public struct CustomAlertModifier {
 }
 
 
-@available(iOS 16.4, *)
+@available(iOS 16, *)
 extension CustomAlertModifier: ViewModifier {
 	
 	public func body(content: Content) -> some View {
@@ -36,12 +36,14 @@ extension CustomAlertModifier: ViewModifier {
 
 extension CustomAlertModifier {
 	
-	public init(title: String = "",
-		 message: String = "",
-		 dismissButton: CustomAlertButton? = nil,
-		 primaryButton: CustomAlertButton? = nil,
-		 secondaryButton: CustomAlertButton? = nil,
-		 isPresented: Binding<Bool>) {
+	public init(
+		title: String = "",
+		message: String = "",
+		dismissButton: CustomAlertButton? = nil,
+		primaryButton: CustomAlertButton? = nil,
+		secondaryButton: CustomAlertButton? = nil,
+		isPresented: Binding<Bool>
+	) {
 		self.title           = title
 		self.message         = message
 		self.dismissButton = dismissButton
@@ -54,22 +56,22 @@ extension CustomAlertModifier {
 
 extension View {
 	
-	public func alert(title: String = "",
-			   message: String = "",
-			   dismissButton: CustomAlertButton = CustomAlertButton(title: "ok"),
-			   primaryButton: CustomAlertButton? = nil,
-			   secondaryButton: CustomAlertButton? = nil,
-			   isPresented: Binding<Bool>) -> some View {
-		let title   = NSLocalizedString(title, comment: "")
-		
-		let message = NSLocalizedString(message, comment: "")
-		
-		return modifier(CustomAlertModifier(title: title,
-											message: message,
-											dismissButton: dismissButton,
-											primaryButton: primaryButton,
-											secondaryButton: secondaryButton,
-											isPresented: isPresented))
+	public func alert(
+		title: String = "",
+		message: String = "",
+		dismissButton: CustomAlertButton = CustomAlertButton(title: "ok"),
+		primaryButton: CustomAlertButton? = nil,
+		secondaryButton: CustomAlertButton? = nil,
+		isPresented: Binding<Bool>
+	) -> some View {
+		modifier(CustomAlertModifier(
+			title: title,
+			message: message,
+			dismissButton: dismissButton,
+			primaryButton: primaryButton,
+			secondaryButton: secondaryButton,
+			isPresented: isPresented
+		))
 	}
 }
 

@@ -10,6 +10,9 @@ import MapKit
 
 public class MapViewSnapshot: NSObject {
 	
+	// Keep a strong reference to prevent deallocation during async operation
+	private var activeSnapshotter: MKMapSnapshotter?
+	
 #if os(iOS)
 	
 	/// Generate a snapshot image of the list of coords that can be displayed on screen
@@ -24,15 +27,30 @@ public class MapViewSnapshot: NSObject {
 		let polyLine = MKPolyline.init(coordinates: coords, count: coords.count)
 		
 		let options = MKMapSnapshotter.Options()
-		options.mapRect = polyLine.boundingMapRect
+		
+		// Add padding to the map rect
+		let rect = polyLine.boundingMapRect
+		let padding = rect.size.width * 0.05 // 5% padding
+		options.mapRect = MKMapRect(
+			x: rect.origin.x - padding,
+			y: rect.origin.y - padding,
+			width: rect.size.width + (padding * 2),
+			height: rect.size.height + (padding * 2)
+		)
+		
 		options.size = size
 		options.scale = AGImage.screenScale()
 		
+		// Store reference to snapshotter
 		let snapShotter = MKMapSnapshotter(options: options)
+		self.activeSnapshotter = snapShotter
 		
 		// Get the map snapshot image
-		let snapshot = try await snapShotter.start(with: DispatchQueue.global(qos: .utility))
+		let snapshot = try await snapShotter.start()
 		let image = snapshot.image
+		
+		// Clear reference after successful snapshot
+		activeSnapshotter = nil
 		
 		// TODO: Split into two methods when we need a macOS version.
 		UIGraphicsBeginImageContextWithOptions(image.size, true, image.scale)
@@ -73,4 +91,7 @@ public class MapViewSnapshot: NSObject {
 	}
 #endif
 
+    deinit {
+        print("being deallocated!")
+    }
 }

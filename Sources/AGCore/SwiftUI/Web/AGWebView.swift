@@ -62,11 +62,6 @@ public struct AGWebView: AGViewRepresentable {
 	
 }
 
-
-
-
-struct AGWebView_Previews: PreviewProvider {
-	static var previews: some View {
-		AGWebView(url: URL(string: "https://homeworldwiki.com")!)
-	}
+#Preview {
+	AGWebView(url: URL(string: "https://bank.westpac.co.nz")!)
 }

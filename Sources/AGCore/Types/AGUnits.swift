@@ -9,7 +9,7 @@
 import Foundation
 
 /// A custom unit for RPM
-public class AGUnitRevolutions: Dimension {
+public class AGUnitRevolutions: Dimension, @unchecked Sendable {
     
     // TODO: localize RPM
     public static let rpm = AGUnitRevolutions(symbol: "rpm", converter: UnitConverterLinear(coefficient: 1.0))
@@ -19,7 +19,7 @@ public class AGUnitRevolutions: Dimension {
     }
 }
 
-public class AGUnitNone: Dimension {
+public class AGUnitNone: Dimension, @unchecked Sendable {
     
     // TODO: localize RPM
 	public static let none = AGUnitNone(symbol: "", converter: UnitConverterLinear(coefficient: 1.0))
@@ -30,7 +30,7 @@ public class AGUnitNone: Dimension {
     
 }
 
-public class AGUnitHeartrate: Dimension {
+public class AGUnitHeartrate: Dimension, @unchecked Sendable {
 
 	// TODO: localize BPM
 	public static let bpm = AGUnitHeartrate(symbol: "bpm", converter: UnitConverterLinear(coefficient: 1.0))
@@ -42,7 +42,7 @@ public class AGUnitHeartrate: Dimension {
 
 
 
-public class AGUnitPercent: Dimension {
+public class AGUnitPercent: Dimension, @unchecked Sendable {
 	
 	private struct Symbol {
 		static let percent      = "%"
@@ -54,7 +54,7 @@ public class AGUnitPercent: Dimension {
 	}
 }
 
-public class AGUnitBoolean : Dimension {
+public class AGUnitBoolean : Dimension, @unchecked Sendable {
 	
 	private struct Symbol {
 		static let bool      = "Bool"
@@ -66,7 +66,7 @@ public class AGUnitBoolean : Dimension {
 
 }
 
-public class AGUnitTime : Dimension {
+public class AGUnitTime : Dimension, @unchecked Sendable {
 	
 	private struct Symbol {
 		static let time      = "hms"
