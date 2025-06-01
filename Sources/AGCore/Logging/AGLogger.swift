@@ -48,7 +48,7 @@ public class AGLogger {
 		dateFormatter.dateFormat = "yyyy-MM-dd-HHmmss"
 	}
 	
-	public func registerForNotifictions() {
+	public func registerForNotifications() {
 		NotificationCenter.default.addObserver(forName: NSNotification.Name.AGLoggerGenerateLog,
 											   object: nil,
 											   queue: nil) { [weak self] notification in

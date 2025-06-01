@@ -62,6 +62,7 @@ public enum AGAccumulatorState: Codable {
 
 public enum AGAccumlatorError: Error {
 	case notRunning
+    case invalidData
 	case running
 }
 
@@ -155,7 +156,7 @@ open class AGAccumulator: Codable {
 		}
 
 		guard let startDate else {
-			throw AGAccumlatorError.notRunning
+			throw AGAccumlatorError.invalidData
 		}
 		
 		lapData.add(type: type, date: date, value: value)
