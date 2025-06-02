@@ -7,7 +7,7 @@
 
 import Foundation
 
-// Can be used for mutliple lap and session data.
+// Can be used for multiple lap and session data.
 public struct AGAccumulatorMultiData: Codable {
 	
 	private(set) public var previousData: [AGAccumulatorData] = []

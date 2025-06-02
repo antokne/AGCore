@@ -60,7 +60,7 @@ public enum AGAccumulatorState: Codable {
 	}
 }
 
-public enum AGAccumlatorError: Error {
+public enum AGAccumulatorError: Error {
 	case notRunning
     case invalidData
 	case running
@@ -152,11 +152,11 @@ open class AGAccumulator: Codable {
 	public func accumulate(date: Date, value: Double, type: AGDataType) throws {
 		
 		guard state.isRunning() else {
-			throw AGAccumlatorError.notRunning
+			throw AGAccumulatorError.notRunning
 		}
 
 		guard let startDate else {
-			throw AGAccumlatorError.invalidData
+			throw AGAccumulatorError.invalidData
 		}
 		
 		lapData.add(type: type, date: date, value: value)
@@ -174,7 +174,7 @@ open class AGAccumulator: Codable {
 	public func accumulate(date: Date, arrayValue: AGDataTypeArrayValue) throws {
 		
 		guard let startDate else {
-			throw AGAccumlatorError.notRunning
+			throw AGAccumulatorError.notRunning
 		}
 		
 		let seconds = Int(timeInterval(for: date, since: startDate))
