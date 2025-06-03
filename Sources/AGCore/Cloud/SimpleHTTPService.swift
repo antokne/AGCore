@@ -139,18 +139,17 @@ public struct SimpleHTTPService: AGCloudServiceProtcol, Sendable {
 		let session = URLSession(configuration: configuration, delegate: sessionDelegate, delegateQueue: nil)
 
 		let (_, response) = try await session.data(for: request, delegate: UploadServiceDelegate(delegate: self) as? URLSessionTaskDelegate)
-		
-//		let task = session.dataTask(with: request)
-//		await task.resume()
 
-		
 		switch self.loginType {
 		case .myBikeTraffic:
 			
-			guard let httpResponse = response as? HTTPURLResponse,
-				  httpResponse.statusCode == 302 else {
-				
-				logger.info("login attempt failed did not get a 302 status code")
+			guard let httpResponse = response as? HTTPURLResponse else {
+				logger.error("Failed to get HTTP Response")
+				throw SimpleHTTPError.authenticationFailed
+			}
+						
+			guard httpResponse.statusCode == 302 else {
+				logger.info("login attempt failed did not get a 302 status code got \(httpResponse.statusCode, privacy: .public)")
 				throw SimpleHTTPError.invalidServerResponse
 			}
 			
@@ -158,7 +157,7 @@ public struct SimpleHTTPService: AGCloudServiceProtcol, Sendable {
 			let result = cookie?.split(separator: ";").first
 			
 			guard let result else {
-				logger.info("login attempt failed got a status code did not get a cookie.")
+				logger.error("login attempt failed got a status code did not get a cookie.")
 				throw SimpleHTTPError.authenticationFailed
 			}
 
