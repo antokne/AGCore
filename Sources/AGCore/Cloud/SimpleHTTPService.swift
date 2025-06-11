@@ -147,9 +147,9 @@ public struct SimpleHTTPService: AGCloudServiceProtcol, Sendable {
 				logger.error("Failed to get HTTP Response")
 				throw SimpleHTTPError.authenticationFailed
 			}
-						
-			guard httpResponse.statusCode == 302 else {
-				logger.info("login attempt failed did not get a 302 status code got \(httpResponse.statusCode, privacy: .public)")
+
+			guard [200, 302].contains(httpResponse.statusCode) else {
+				logger.info("login attempt failed did not get a 302 or 200 status code got \(httpResponse.statusCode, privacy: .public) instead.")
 				throw SimpleHTTPError.invalidServerResponse
 			}
 			
