@@ -68,7 +68,7 @@ public struct CustomAlert: View {
 			Spacer()
 		}
 		.padding(24)
-		.background(.white)
+		.background(.background)
 	}
 	
 	@ViewBuilder
@@ -76,7 +76,7 @@ public struct CustomAlert: View {
 		if !title.isEmpty {
 			Text(title)
 				.font(.title)
-				.foregroundColor(.black)
+				.foregroundStyle(.primary)
 #if os(iOS)
 				.lineSpacing(24 - UIFont.systemFont(ofSize: 18, weight: .bold).lineHeight)
 #endif
@@ -89,7 +89,7 @@ public struct CustomAlert: View {
 	private var messageView: some View {
 		if !message.isEmpty {
 			Text(message)
-				.foregroundColor(title.isEmpty ? .black : .gray)
+				.foregroundStyle(.secondary)
 #if os(iOS)
 				.lineSpacing(24 - UIFont.systemFont(ofSize: title.isEmpty ? 18 : 16).lineHeight)
 #endif
@@ -236,3 +236,4 @@ struct CustomAlert_Previews: PreviewProvider {
 		.preferredColorScheme(.dark)
 	}
 }
+
