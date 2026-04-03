@@ -10,14 +10,18 @@ import UserNotifications
 import NiceNotifications
 
 public class AGNotificationManager {
-	
+
 	private var notificationDelegate = AGNotificationDelegate()
 
+	/// Handler called when a notification action is received
+	public var notificationActionHandler: (([AnyHashable: Any]) -> Void)?
+
 	public init() {
-		
+
 	}
 	
 	public func setNotificationDelegate() {
+		notificationDelegate.notificationManager = self
 		UNUserNotificationCenter.current().delegate = notificationDelegate
 	}
 
@@ -62,10 +66,11 @@ public class AGNotificationManager {
 
 
 private class AGNotificationDelegate: NSObject {
-	var presentationOptions: [String: UNNotificationPresentationOptions] = [: ]
-	
-	func receivedNotification(info: [AnyHashable : Any]) {
-		
+	var presentationOptions: [String: UNNotificationPresentationOptions] = [:]
+	weak var notificationManager: AGNotificationManager?
+
+	func receivedNotification(info: [AnyHashable: Any]) {
+		notificationManager?.notificationActionHandler?(info)
 	}
 }
 
