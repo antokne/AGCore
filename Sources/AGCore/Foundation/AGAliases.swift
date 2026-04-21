@@ -58,5 +58,4 @@ extension AGImage {
 }
 #endif
 
-extension AGImage: Sendable {}
 
