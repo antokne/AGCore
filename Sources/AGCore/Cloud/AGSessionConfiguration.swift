@@ -7,13 +7,16 @@
 
 import Foundation
 
-public class AGSessionConfiguration {
-	
-	static let sessionConfiguartionIdentifier = "com.antokne.agcore.sessionconfiguration"
-	
+public enum AGSessionConfiguration {
+
+	public static let backgroundUploadIdentifier = "com.antokne.veloscope.upload"
+
 	public static var backgroundSessionConfiguration: URLSessionConfiguration = {
-		var configuration = URLSessionConfiguration.background(withIdentifier: AGSessionConfiguration.sessionConfiguartionIdentifier)
-		configuration.sessionSendsLaunchEvents = false
+		let configuration = URLSessionConfiguration.background(withIdentifier: AGSessionConfiguration.backgroundUploadIdentifier)
+		configuration.sessionSendsLaunchEvents = true
+		configuration.isDiscretionary = false
+		configuration.allowsCellularAccess = true
+		configuration.waitsForConnectivity = true
 		return configuration
 	}()
 }

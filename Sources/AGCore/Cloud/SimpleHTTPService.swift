@@ -172,79 +172,110 @@ public struct SimpleHTTPService: AGCloudServiceProtcol, Sendable {
 	///   - fileURL: url of the file to upload
 	///   - auth: auth details to use in upload
 	/// - Returns: the id on the file uploaded on the server that can be used in linking
-	public func upload(fileURL: URL, using auth: AGCloudServiceSiteProtocol) async throws -> String {
-		
+	public func upload(fileURL: URL,
+					   using auth: AGCloudServiceSiteProtocol,
+					   metadata: AGBackgroundUploadMetadata? = nil) async throws -> String {
+
 		logger.info("upload file \(fileURL, privacy: .public)")
 
 		guard let uploadURL else {
 			logger.fault("Did not get a file")
 			throw SimpleHTTPError.invalidURL
 		}
-		
+
 		// if nil then try the one we currently have
 		switch self.loginType {
 		case .myBikeTraffic:
-			
-			// 1. login.
+
+			// 1. login (foreground / ephemeral session — only the upload step
+			// is moved to the background session).
 			let loginResult = try await login(email: auth.email, password: auth.password)
 			var result = loginResult.token
 			if result == nil {
 				logger.warning("Trying to use saved cookie, this may fail.")
 				result = auth.token
 			}
-			
+
 			guard let cookie = result else {
 				logger.warning("Cookie is still nil can't continue.")
 				throw SimpleHTTPError.authenticationFailed
 			}
-			
+
 			let contentType = "application/vnd.ant.fit"
 			let multiPartFormRequest = AGMultiPartFormRequest(name: "fitfile",
 															  boundary: "__X_BOUNDARY__",
 															  fileURL: fileURL,
 															  contentType: contentType,
 															  cookie: cookie)
-			
+
 			let uploadRequest = try multiPartFormRequest.asURLRequest(url: uploadURL)
 
-			// Use a background session to perform the upload.
-			let configuration = URLSessionConfiguration.ephemeral //AGSessionConfiguration.backgroundSessionConfiguration
+			// 2. Upload — handed off to the shared background URLSession so
+			// the transfer survives suspension / termination.
+			let uploadMetadata = metadata ?? AGBackgroundUploadMetadata(
+				activityObjectIDURI: "",
+				shareSiteName: loginType.name,
+				fileURLString: fileURL.absoluteString)
 
-			let delegate = UploadServiceDelegate(delegate: self) as? URLSessionTaskDelegate
-			let session = URLSession(configuration: configuration, delegate: delegate, delegateQueue: nil)
-			let (data, _) = try await session.data(for: uploadRequest, delegate: delegate)
-			var mbtResponse: MyBikeTrafficUploadResponse? = nil
-			do {
-				mbtResponse = try data.decodeData()
-			}
-			catch {
-				logger.warning("Decoding json data failed \(String(data: data, encoding: .utf8) ?? "?", privacy: .public).")
+			logger.info("Handing upload to background session site=\(loginType.name, privacy: .public) file=\(fileURL.lastPathComponent, privacy: .public) bytes=\((try? FileManager.default.attributesOfItem(atPath: fileURL.path)[.size] as? Int) ?? -1, privacy: .public)")
 
-				// If we get a decoding error probably some error.
-				if let jsonObject = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-				let error = jsonObject["err"] as? String{
-					logger.fault("Failed to get error from parsing json")
-					throw SimpleHTTPError.serverError(error: error)
-				}
+			let (data, response) = try await AGBackgroundUploadSession.shared.upload(
+				fileURL: fileURL,
+				request: uploadRequest,
+				metadata: uploadMetadata)
+
+			logger.info("Background upload returned status=\(response.statusCode, privacy: .public) bytes=\(data.count, privacy: .public)")
+
+			// Cookie-staleness handling: a 401 or a 302 redirect to the
+			// login page indicates the PHP session expired between login
+			// and upload (common after iOS-initiated relaunch). Surface
+			// `authenticationFailed` so the caller can keep status as
+			// `.inProgress` and retry on the next BG fire with a fresh
+			// login.
+			if response.statusCode == 401 || response.statusCode == 302 {
+				logger.warning("Upload returned \(response.statusCode, privacy: .public) — cookie likely stale.")
+				throw SimpleHTTPError.authenticationFailed
 			}
-			
-			if let dup = mbtResponse?.dup {
-				// already uploaded is not an error.
-				logger.info("Got dup result \(dup, privacy: .public).")
-				return dup
-			}
-			if let error = mbtResponse?.err {
-				logger.warning("Server error \(error, privacy: .public)")
+
+			return try Self.parseMyBikeTrafficUploadResponse(data: data)
+		}
+	}
+
+	/// Decodes a MyBikeTraffic upload response body into a ride id.
+	/// Exposed so the background-session relaunch handler can reuse the
+	/// same parsing logic when iOS delivers a completion outside of an
+	/// `await session.upload(...)` call.
+	public static func parseMyBikeTrafficUploadResponse(data: Data) throws -> String {
+		let logger = Logger(subsystem: "com.antokne.core", category: "SimpleHTTPService")
+		var mbtResponse: MyBikeTrafficUploadResponse? = nil
+		do {
+			mbtResponse = try data.decodeData()
+		}
+		catch {
+			logger.warning("Decoding json data failed \(String(data: data, encoding: .utf8) ?? "?", privacy: .public).")
+
+			if let jsonObject = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+			   let error = jsonObject["err"] as? String {
+				logger.fault("Failed to get error from parsing json")
 				throw SimpleHTTPError.serverError(error: error)
 			}
-			guard let rideId = mbtResponse?.ride?.id else {
-				logger.error("failed to upload file.")
-				throw SimpleHTTPError.uploadFailed
-			}
-			
-			logger.info("File uploaded got ride id \(rideId, privacy: .public).")
-			return String(rideId)
 		}
+
+		if let dup = mbtResponse?.dup {
+			logger.info("Got dup result \(dup, privacy: .public).")
+			return dup
+		}
+		if let error = mbtResponse?.err {
+			logger.warning("Server error \(error, privacy: .public)")
+			throw SimpleHTTPError.serverError(error: error)
+		}
+		guard let rideId = mbtResponse?.ride?.id else {
+			logger.error("failed to upload file.")
+			throw SimpleHTTPError.uploadFailed
+		}
+
+		logger.info("File uploaded got ride id \(rideId, privacy: .public).")
+		return String(rideId)
 	}
 	
 	public func progress(progress: Double) {
