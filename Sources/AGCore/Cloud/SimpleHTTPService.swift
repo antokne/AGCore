@@ -208,7 +208,19 @@ public struct SimpleHTTPService: AGCloudServiceProtcol, Sendable {
 															  contentType: contentType,
 															  cookie: cookie)
 
-			let uploadRequest = try multiPartFormRequest.asURLRequest(url: uploadURL)
+			// uploadTask(with:fromFile:) ignores request.httpBody and sends the
+			// file contents as-is. We need the full multipart envelope (boundary
+			// headers + "fitfile" field) to be the body, so write it to a temp
+			// file and pass that to the background session instead.
+			let multipartBody = try multiPartFormRequest.httpBody()
+			let tempFileURL = FileManager.default.temporaryDirectory
+				.appending(path: UUID().uuidString + ".multipart")
+			try multipartBody.write(to: tempFileURL)
+
+			// Build a headers-only request — fromFile: supplies the body.
+			var uploadRequest = URLRequest(url: uploadURL)
+			uploadRequest.httpMethod = "POST"
+			uploadRequest.allHTTPHeaderFields = try multiPartFormRequest.asURLRequest(url: uploadURL).allHTTPHeaderFields
 
 			// 2. Upload — handed off to the shared background URLSession so
 			// the transfer survives suspension / termination.
@@ -217,12 +229,14 @@ public struct SimpleHTTPService: AGCloudServiceProtcol, Sendable {
 				shareSiteName: loginType.name,
 				fileURLString: fileURL.absoluteString)
 
-			logger.info("Handing upload to background session site=\(loginType.name, privacy: .public) file=\(fileURL.lastPathComponent, privacy: .public) bytes=\((try? FileManager.default.attributesOfItem(atPath: fileURL.path)[.size] as? Int) ?? -1, privacy: .public)")
+			logger.info("Handing upload to background session site=\(loginType.name, privacy: .public) file=\(fileURL.lastPathComponent, privacy: .public) bytes=\(multipartBody.count, privacy: .public)")
 
 			let (data, response) = try await AGBackgroundUploadSession.shared.upload(
-				fileURL: fileURL,
+				fileURL: tempFileURL,
 				request: uploadRequest,
 				metadata: uploadMetadata)
+
+			try? FileManager.default.removeItem(at: tempFileURL)
 
 			logger.info("Background upload returned status=\(response.statusCode, privacy: .public) bytes=\(data.count, privacy: .public)")
 
