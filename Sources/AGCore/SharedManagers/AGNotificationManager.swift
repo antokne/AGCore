@@ -31,7 +31,7 @@ public class AGNotificationManager {
 
 	public func postNotificationNow(
 		title: String,
-		message: String,
+		message: String = "",
 		sound: UNNotificationSound = .default,
 		id: String
 	) {
