@@ -7,7 +7,6 @@
 
 import Foundation
 import StoreKit
-import OSLog
 
 public class AGFeatureNonConsumableIAP {
 	
@@ -17,7 +16,7 @@ public class AGFeatureNonConsumableIAP {
 	public private(set) var description: String
 	private var rule: AGFeatureRuleProtocol
 	
-	public var logger = Logger(subsystem: "com.antokne.core", category: "AGFeatureNonConsumableIAP")
+	public let logger = AGLogger(subsystem: "com.antokne.core", category: "AGFeatureNonConsumableIAP")
 
 	/// A defaults "cache" value to use before product is avaialble
 	private var defaultsValue: AGUserDefaultBoolValue

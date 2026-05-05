@@ -5,16 +5,15 @@
 //  Created by Antony Gardiner on 19/12/22.
 //
 import Foundation
-import OSLog
 #if os(iOS)
 import UIKit
 #endif
 
 public class AGCacheManager {
-	
+
 	public static let shared: AGCacheManager = AGCacheManager()
-	
-	private let log = Logger(subsystem: "com.antokne.agcore", category: "AGCacheManager")
+
+	private let log = AGLogger(subsystem: "com.antokne.agcore", category: "AGCacheManager")
 
 	public func setImage(name: String, image: AGImage) {
 

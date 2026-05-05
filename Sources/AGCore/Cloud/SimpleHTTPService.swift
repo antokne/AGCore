@@ -7,7 +7,6 @@
 
 import Foundation
 @preconcurrency import Combine
-@preconcurrency import os
 
 public protocol AGCloudServiceSiteProtocol: Codable {
 	var service: String { get }
@@ -102,7 +101,7 @@ public struct SimpleHTTPService: AGCloudServiceProtcol, Sendable {
 		self.uploadProgress.eraseToAnyPublisher()
 	}()
 	
-	private var logger = Logger(subsystem: "com.antokne.core", category: "SimpleHTTPService")
+	private let logger = AGLogger(subsystem: "com.antokne.core", category: "SimpleHTTPService")
 
 	public func login(email: String, password: String) async throws -> LogInResult {
 		
@@ -110,7 +109,7 @@ public struct SimpleHTTPService: AGCloudServiceProtcol, Sendable {
 			throw SimpleHTTPError.invalidURL
 		}
 		
-		logger.info("login attempt for \(loginType.name, privacy: .public)")
+		logger.info("login attempt for \(loginType.name)")
 		
 		var request = URLRequest(url: loginURL)
 		request.httpMethod = "POST"
@@ -149,7 +148,7 @@ public struct SimpleHTTPService: AGCloudServiceProtcol, Sendable {
 			}
 
 			guard [200, 302].contains(httpResponse.statusCode) else {
-				logger.info("login attempt failed did not get a 302 or 200 status code got \(httpResponse.statusCode, privacy: .public) instead.")
+				logger.info("login attempt failed did not get a 302 or 200 status code got \(httpResponse.statusCode) instead.")
 				throw SimpleHTTPError.invalidServerResponse
 			}
 			
@@ -176,7 +175,7 @@ public struct SimpleHTTPService: AGCloudServiceProtcol, Sendable {
 					   using auth: AGCloudServiceSiteProtocol,
 					   metadata: AGBackgroundUploadMetadata? = nil) async throws -> String {
 
-		logger.info("upload file \(fileURL, privacy: .public)")
+		logger.info("upload file \(fileURL)")
 
 		guard let uploadURL else {
 			logger.fault("Did not get a file")
@@ -229,7 +228,7 @@ public struct SimpleHTTPService: AGCloudServiceProtcol, Sendable {
 				shareSiteName: loginType.name,
 				fileURLString: fileURL.absoluteString)
 
-			logger.info("Handing upload to background session site=\(loginType.name, privacy: .public) file=\(fileURL.lastPathComponent, privacy: .public) bytes=\(multipartBody.count, privacy: .public)")
+			logger.info("Handing upload to background session site=\(loginType.name) file=\(fileURL.lastPathComponent) bytes=\(multipartBody.count)")
 
 			let (data, response) = try await AGBackgroundUploadSession.shared.upload(
 				fileURL: tempFileURL,
@@ -238,7 +237,7 @@ public struct SimpleHTTPService: AGCloudServiceProtcol, Sendable {
 
 			try? FileManager.default.removeItem(at: tempFileURL)
 
-			logger.info("Background upload returned status=\(response.statusCode, privacy: .public) bytes=\(data.count, privacy: .public)")
+			logger.info("Background upload returned status=\(response.statusCode) bytes=\(data.count)")
 
 			// Cookie-staleness handling: a 401 or a 302 redirect to the
 			// login page indicates the PHP session expired between login
@@ -247,7 +246,7 @@ public struct SimpleHTTPService: AGCloudServiceProtcol, Sendable {
 			// `.inProgress` and retry on the next BG fire with a fresh
 			// login.
 			if response.statusCode == 401 || response.statusCode == 302 {
-				logger.warning("Upload returned \(response.statusCode, privacy: .public) — cookie likely stale.")
+				logger.warning("Upload returned \(response.statusCode) — cookie likely stale.")
 				throw SimpleHTTPError.authenticationFailed
 			}
 
@@ -260,13 +259,13 @@ public struct SimpleHTTPService: AGCloudServiceProtcol, Sendable {
 	/// same parsing logic when iOS delivers a completion outside of an
 	/// `await session.upload(...)` call.
 	public static func parseMyBikeTrafficUploadResponse(data: Data) throws -> String {
-		let logger = Logger(subsystem: "com.antokne.core", category: "SimpleHTTPService")
+		let logger = AGLogger(subsystem: "com.antokne.core", category: "SimpleHTTPService")
 		var mbtResponse: MyBikeTrafficUploadResponse? = nil
 		do {
 			mbtResponse = try data.decodeData()
 		}
 		catch {
-			logger.warning("Decoding json data failed \(String(data: data, encoding: .utf8) ?? "?", privacy: .public).")
+			logger.warning("Decoding json data failed \(String(data: data, encoding: .utf8) ?? "?")")
 
 			if let jsonObject = try JSONSerialization.jsonObject(with: data) as? [String: Any],
 			   let error = jsonObject["err"] as? String {
@@ -276,11 +275,11 @@ public struct SimpleHTTPService: AGCloudServiceProtcol, Sendable {
 		}
 
 		if let dup = mbtResponse?.dup {
-			logger.info("Got dup result \(dup, privacy: .public).")
+			logger.info("Got dup result \(dup).")
 			return dup
 		}
 		if let error = mbtResponse?.err {
-			logger.warning("Server error \(error, privacy: .public)")
+			logger.warning("Server error \(error)")
 			throw SimpleHTTPError.serverError(error: error)
 		}
 		guard let rideId = mbtResponse?.ride?.id else {
@@ -288,7 +287,7 @@ public struct SimpleHTTPService: AGCloudServiceProtcol, Sendable {
 			throw SimpleHTTPError.uploadFailed
 		}
 
-		logger.info("File uploaded got ride id \(rideId, privacy: .public).")
+		logger.info("File uploaded got ride id \(rideId).")
 		return String(rideId)
 	}
 	

@@ -11,7 +11,6 @@
 //
 
 import Foundation
-import os
 
 /// Opaque metadata persisted alongside a background upload task so that
 /// callers can correlate a relaunch-delivered completion back to the
@@ -52,7 +51,7 @@ public final class AGBackgroundUploadSession: NSObject, @unchecked Sendable {
 
 	public static let shared = AGBackgroundUploadSession()
 
-	private let logger = Logger(subsystem: "com.antokne.core", category: "AGBackgroundUploadSession")
+	private let logger = AGLogger(subsystem: "com.antokne.core", category: "AGBackgroundUploadSession")
 
 	// All shared mutable state guarded by `lock`. The delegate callbacks
 	// arrive on the session's `delegateQueue` (a private serial queue) and
@@ -82,7 +81,7 @@ public final class AGBackgroundUploadSession: NSObject, @unchecked Sendable {
 		let pendingCount = pendingMetadata.count
 		let pendingKeys = pendingMetadata.keys.sorted()
 		lock.unlock()
-		logger.info("AGBackgroundUploadSession init id=\(AGSessionConfiguration.backgroundUploadIdentifier, privacy: .public) restored \(pendingCount, privacy: .public) pending metadata entries keys=\(pendingKeys, privacy: .public)")
+		logger.info("AGBackgroundUploadSession init id=\(AGSessionConfiguration.backgroundUploadIdentifier) restored \(pendingCount) pending metadata entries keys=\(pendingKeys)")
 	}
 
 	// MARK: - Public API
@@ -106,7 +105,7 @@ public final class AGBackgroundUploadSession: NSObject, @unchecked Sendable {
 		let task = session.uploadTask(with: request, fromFile: fileURL)
 		let identifier = task.taskIdentifier
 
-		logger.info("Enqueue upload taskId=\(identifier, privacy: .public) site=\(metadata.shareSiteName, privacy: .public) activity=\(metadata.activityObjectIDURI, privacy: .public) file=\(fileURL.lastPathComponent, privacy: .public)")
+		logger.info("Enqueue upload taskId=\(identifier) site=\(metadata.shareSiteName) activity=\(metadata.activityObjectIDURI) file=\(fileURL.lastPathComponent)")
 
 		return try await withCheckedThrowingContinuation { continuation in
 			lock.lock()
@@ -116,7 +115,7 @@ public final class AGBackgroundUploadSession: NSObject, @unchecked Sendable {
 			lock.unlock()
 			persistPendingMetadata()
 			task.resume()
-			logger.debug("Upload task resumed taskId=\(identifier, privacy: .public)")
+			logger.debug("Upload task resumed taskId=\(identifier)")
 		}
 	}
 
@@ -188,11 +187,11 @@ extension AGBackgroundUploadSession: URLSessionDataDelegate, URLSessionTaskDeleg
 		responseData[identifier, default: Data()].append(data)
 		let total = responseData[identifier]?.count ?? 0
 		lock.unlock()
-		logger.debug("didReceive taskId=\(identifier, privacy: .public) chunk=\(data.count, privacy: .public) total=\(total, privacy: .public)")
+		logger.debug("didReceive taskId=\(identifier) chunk=\(data.count) total=\(total)")
 	}
 
 	public func urlSession(_ session: URLSession, task: URLSessionTask, didSendBodyData bytesSent: Int64, totalBytesSent: Int64, totalBytesExpectedToSend: Int64) {
-		logger.debug("didSendBodyData taskId=\(task.taskIdentifier, privacy: .public) sent=\(totalBytesSent, privacy: .public)/\(totalBytesExpectedToSend, privacy: .public)")
+		logger.debug("didSendBodyData taskId=\(task.taskIdentifier) sent=\(totalBytesSent)/\(totalBytesExpectedToSend)")
 	}
 
 	public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
@@ -208,18 +207,18 @@ extension AGBackgroundUploadSession: URLSessionDataDelegate, URLSessionTaskDeleg
 
 		let result: AGBackgroundUploadResult
 		if let error = error {
-			logger.error("didCompleteWithError taskId=\(identifier, privacy: .public) bytes=\(body.count, privacy: .public) error=\(error, privacy: .public)")
+			logger.error("didCompleteWithError taskId=\(identifier) bytes=\(body.count) error=\(error)")
 			result = .failure(error)
 		} else if let response = task.response as? HTTPURLResponse {
-			logger.info("didComplete taskId=\(identifier, privacy: .public) status=\(response.statusCode, privacy: .public) bytes=\(body.count, privacy: .public) site=\(metadata?.shareSiteName ?? "?", privacy: .public)")
+			logger.info("didComplete taskId=\(identifier) status=\(response.statusCode) bytes=\(body.count) site=\(metadata?.shareSiteName ?? "?")")
 			result = .success((body, response))
 		} else {
-			logger.error("didComplete taskId=\(identifier, privacy: .public) missingResponse")
+			logger.error("didComplete taskId=\(identifier) missingResponse")
 			result = .failure(AGBackgroundUploadError.missingResponse)
 		}
 
 		if let continuation = continuation {
-			logger.debug("Resuming live continuation for taskId=\(identifier, privacy: .public)")
+			logger.debug("Resuming live continuation for taskId=\(identifier)")
 			switch result {
 			case .success(let payload):
 				continuation.resume(returning: payload)
@@ -232,13 +231,13 @@ extension AGBackgroundUploadSession: URLSessionDataDelegate, URLSessionTaskDeleg
 
 		// No live continuation — relaunch / out-of-process delivery.
 		if let metadata = metadata, let handler = handler {
-			logger.info("Routing taskId=\(identifier, privacy: .public) to relaunch handler site=\(metadata.shareSiteName, privacy: .public) activity=\(metadata.activityObjectIDURI, privacy: .public)")
+			logger.info("Routing taskId=\(identifier) to relaunch handler site=\(metadata.shareSiteName) activity=\(metadata.activityObjectIDURI)")
 			Task {
 				await handler(metadata, result)
 				self.removeMetadata(for: identifier)
 			}
 		} else {
-			logger.warning("Upload task \(identifier, privacy: .public) completed with no continuation and no relaunch handler — dropping result hasMetadata=\(metadata != nil, privacy: .public) hasHandler=\(handler != nil, privacy: .public)")
+			logger.warning("Upload task \(identifier) completed with no continuation and no relaunch handler — dropping result hasMetadata=\(metadata != nil) hasHandler=\(handler != nil)")
 			removeMetadata(for: identifier)
 		}
 	}
@@ -248,7 +247,7 @@ extension AGBackgroundUploadSession: URLSessionDataDelegate, URLSessionTaskDeleg
 		let waiters = backgroundEventsContinuations
 		backgroundEventsContinuations.removeAll()
 		lock.unlock()
-		logger.info("urlSessionDidFinishEvents firing \(waiters.count, privacy: .public) waiter(s)")
+		logger.info("urlSessionDidFinishEvents firing \(waiters.count) waiter(s)")
 		for waiter in waiters {
 			waiter.resume()
 		}

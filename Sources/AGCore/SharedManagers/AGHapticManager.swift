@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import OSLog
 import CoreHaptics
 
 public enum AGHapticError: Error {
@@ -19,7 +18,7 @@ public class AGHapticManager: ObservableObject {
 	
 	public static let shared: AGHapticManager = AGHapticManager()
 
-	private var logger = Logger(subsystem: "com.antokne.agcore", category: "AGHapticManager")
+	private let logger = AGLogger(subsystem: "com.antokne.agcore", category: "AGHapticManager")
 
 	private var engine: CHHapticEngine?
 	private var isEngineRunning: Bool = false
@@ -38,7 +37,7 @@ public class AGHapticManager: ObservableObject {
 		
 		engine = try CHHapticEngine()
 		engine?.stoppedHandler = { [weak self] reason in
-			self?.logger.fault("Stopped for reason: \(reason.rawValue, privacy: .public)")
+			self?.logger.fault("Stopped for reason: \(reason.rawValue)")
 			self?.isEngineRunning = false
 		}
 		
